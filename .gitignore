@@ -14,5 +14,13 @@ export_presets.cfg
 data_*/
 mono_crash.*.json
 
+# System specific ignores
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Editor
 .vscode/
-CLAUDE.md
