@@ -11,6 +11,10 @@ var chat_visible = false
 var inventory_visible = false
 
 func _ready():
+	if DisplayServer.get_name() == "headless":
+		print("Dedicated server starting...")
+		Network.start_host("", "")
+
 	multiplayer_chat.hide()
 	main_menu.show_menu()
 	multiplayer_chat.set_process_input(true)
@@ -43,6 +47,9 @@ func _on_join_pressed(nickname: String, skin: String, address: String):
 	Network.join_game(nickname, skin, address)
 
 func _add_player(id: int, player_info : Dictionary):
+	if DisplayServer.get_name() == "headless" and id == 1:
+		return
+
 	if players_container.has_node(str(id)):
 		return
 

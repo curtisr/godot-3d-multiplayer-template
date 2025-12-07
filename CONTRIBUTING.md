@@ -16,8 +16,11 @@ If you wish to contribute to the project, please follow the steps below to ensur
 6. **Push your changes**: Push the branch to your fork on GitHub.
 7. **Submit a Pull Request**: Go to the "Pull Requests" tab in the original repository and submit your changes.
 
-## Reporting Issues
+## Testing
 
-If you encounter bugs or have suggestions, please feel free to open an issue on GitHub.
+Before submitting a pull request, please ensure your changes work in both:
+
+1. **Host/Client Mode:** Run multiple instances locally to verify player interaction.
+2. **Dedicated Server Mode:** Use the provided scripts to run a headless server and connect to it with a client.
 
 Thank you for contributing!

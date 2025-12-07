@@ -36,6 +36,10 @@ func start_host(nickname: String, skin_color_str: String):
 
 	player_info["nick"] = nickname
 	player_info["skin"] = skin_str_to_e(skin_color_str)
+	
+	if DisplayServer.get_name() == "headless":
+		return
+
 	players[1] = player_info
 	player_connected.emit(1, player_info)
 
@@ -61,6 +65,8 @@ func _on_connected_ok():
 	player_connected.emit(peer_id, player_info)
 
 func _on_player_connected(id):
+	if DisplayServer.get_name() == "headless":
+		return
 	_register_player.rpc_id(id, player_info)
 
 @rpc("any_peer", "reliable")

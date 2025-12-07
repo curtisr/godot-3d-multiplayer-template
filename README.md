@@ -1,6 +1,6 @@
 # Godot 3D Multiplayer Template
 
-This is a foundational template for a 3D multiplayer game, developed in Godot Engine 4.4. It offers a starting structure for your next multiplayer project, including essential functionalities for players to interact and communicate in real-time.
+This is a foundational template for a 3D multiplayer game, developed in Godot Engine 4.5. It offers a starting structure for your next multiplayer project, including essential functionalities for players to interact and communicate in real-time.
 
 
 > This template is also available on the [Godot Asset Library](https://godotengine.org/asset-library/asset/3377) and [Godot Asset Store](https://store-beta.godotengine.org/asset/devmoreir4/godot-3d-multiplayer-template/).
@@ -30,6 +30,16 @@ Follow these simple steps to get the template up and running:
 To test the multiplayer functionality locally:
 Go to `Debug` > `Customize Run Instances`, then enable `Enable Multiple Instances` and set the number of instances you want to run simultaneously.
 
+## Dedicated Server
+
+To run the project as a dedicated server (headless mode), use the provided script:
+
+```bash
+./run_headless_server.sh
+```
+
+Ensure the script has execution permissions (`chmod +x run_headless_server.sh`) and that the `godot` binary is in your system `PATH`.
+
 ## Controls
 
 * <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> to move.
@@ -41,11 +51,11 @@ Go to `Debug` > `Customize Run Instances`, then enable `Enable Multiple Instance
 * <kbd>F1</kbd> to add random test item (debug).
 * <kbd>F2</kbd> to print inventory contents (debug).
 
-## Screenshots
+<!-- ## Screenshots
 
 <img src="./.github/img1.png" alt="Image Example" width="700px">
 <img src="./.github/img4.PNG" alt="Image Example" width="700px">
-<img src="./.github/img3.png" alt="Image Example" width="700px">
+<img src="./.github/img3.png" alt="Image Example" width="700px"> -->
 
 ## Contributing
 
@@ -53,4 +63,4 @@ If you want to contribute to this project, please refer to our [Contributing Gui
 
 ## Credits
 
-* 3D-Godot-Robot-Platformer-Character: https://github.com/AGChow/3D-Godot-Robot-Platformer-Character (CC0)
+* [3D-Godot-Robot-Platformer-Character](https://github.com/AGChow/3D-Godot-Robot-Platformer-Character) (CC0)
