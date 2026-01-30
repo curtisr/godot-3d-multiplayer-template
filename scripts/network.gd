@@ -18,8 +18,8 @@ func _process(_delta):
 		get_tree().quit(0)
 
 func _ready() -> void:
-	multiplayer.server_disconnected.connect(_on_connection_failed)
-	multiplayer.connection_failed.connect(_on_server_disconnected)
+	multiplayer.server_disconnected.connect(_on_server_disconnected)
+	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.peer_disconnected.connect(_on_player_disconnected)
 	multiplayer.peer_connected.connect(_on_player_connected)
 	multiplayer.connected_to_server.connect(_on_connected_ok)
@@ -80,6 +80,7 @@ func _on_player_disconnected(id):
 
 func _on_connection_failed():
 	multiplayer.multiplayer_peer = null
+	server_disconnected.emit()
 
 func _on_server_disconnected():
 	multiplayer.multiplayer_peer = null

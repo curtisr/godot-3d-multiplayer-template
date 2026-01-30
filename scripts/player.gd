@@ -54,6 +54,7 @@ func _ready():
 			request_inventory_sync.rpc_id(1)
 
 func _physics_process(delta):
+	if not multiplayer.has_multiplayer_peer(): return
 	if not is_multiplayer_authority(): return
 
 	var current_scene = get_tree().get_current_scene()
@@ -92,6 +93,7 @@ func _physics_process(delta):
 	_body.animate(velocity)
 
 func _process(_delta):
+	if not multiplayer.has_multiplayer_peer(): return
 	if not is_multiplayer_authority(): return
 	_check_fall_and_respawn()
 
