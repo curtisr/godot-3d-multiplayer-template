@@ -22,7 +22,7 @@ Follow these simple steps to get the template up and running:
 
 1. **Clone or Download:** Obtain the repository by cloning it via Git or downloading the ZIP file.
 2. **Open in Godot Engine:** Load the project in your [Godot Engine](https://godotengine.org) installation.
-3. **Execute:** Press `<kbd>`F5`</kbd>` or click `Run Project` in the Godot editor.
+3. **Execute:** Press <kbd>F5</kbd> or click `Run Project` in the Godot editor.
 
 <br>
 
@@ -41,14 +41,14 @@ Ensure the script has execution permissions (`chmod +x run_headless_server.sh`) 
 
 ## Controls
 
-* `<kbd>`W`</kbd>` `<kbd>`A`</kbd>` `<kbd>`S`</kbd>` `<kbd>`D`</kbd>` to move.
-* `<kbd>`Shift`</kbd>` to run.
-* `<kbd>`Space`</kbd>` to jump.
-* `<kbd>`Esc`</kbd>` to quit.
-* `<kbd>`Ctrl`</kbd>` to hide/show chat.
-* `<kbd>`B`</kbd>` to toggle inventory.
-* `<kbd>`F1`</kbd>` to add random test item (debug).
-* `<kbd>`F2`</kbd>` to print inventory contents (debug).
+* <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> to move.
+* <kbd>Shift</kbd> to run.
+* <kbd>Space</kbd> to jump.
+* <kbd>Esc</kbd> to quit.
+* <kbd>Ctrl</kbd> to hide/show chat.
+* <kbd>B</kbd> to toggle inventory.
+* <kbd>F1</kbd> to add random test item (debug).
+* <kbd>F2</kbd> to print inventory contents (debug).
 
 <!-- ## Screenshots
 
