@@ -1,7 +1,6 @@
 # Godot 3D Multiplayer Template
 
-This is a foundational template for a 3D multiplayer game, developed in Godot Engine 4.5. It offers a starting structure for your next multiplayer project, including essential functionalities for players to interact and communicate in real-time.
-
+This is a foundational template for a 3D multiplayer game, developed in Godot Engine 4.6. It offers a starting structure for your next multiplayer project, including essential functionalities for players to interact and communicate in real-time.
 
 > This template is also available on the [Godot Asset Library](https://godotengine.org/asset-library/asset/3377) and [Godot Asset Store](https://store-beta.godotengine.org/asset/devmoreir4/godot-3d-multiplayer-template/).
 
@@ -23,7 +22,7 @@ Follow these simple steps to get the template up and running:
 
 1. **Clone or Download:** Obtain the repository by cloning it via Git or downloading the ZIP file.
 2. **Open in Godot Engine:** Load the project in your [Godot Engine](https://godotengine.org) installation.
-3. **Execute:** Press <kbd>F5</kbd> or click `Run Project` in the Godot editor.
+3. **Execute:** Press `<kbd>`F5`</kbd>` or click `Run Project` in the Godot editor.
 
 <br>
 
@@ -42,14 +41,14 @@ Ensure the script has execution permissions (`chmod +x run_headless_server.sh`) 
 
 ## Controls
 
-* <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> to move.
-* <kbd>Shift</kbd> to run.
-* <kbd>Space</kbd> to jump.
-* <kbd>Esc</kbd> to quit.
-* <kbd>Ctrl</kbd> to hide/show chat.
-* <kbd>B</kbd> to toggle inventory.
-* <kbd>F1</kbd> to add random test item (debug).
-* <kbd>F2</kbd> to print inventory contents (debug).
+* `<kbd>`W`</kbd>` `<kbd>`A`</kbd>` `<kbd>`S`</kbd>` `<kbd>`D`</kbd>` to move.
+* `<kbd>`Shift`</kbd>` to run.
+* `<kbd>`Space`</kbd>` to jump.
+* `<kbd>`Esc`</kbd>` to quit.
+* `<kbd>`Ctrl`</kbd>` to hide/show chat.
+* `<kbd>`B`</kbd>` to toggle inventory.
+* `<kbd>`F1`</kbd>` to add random test item (debug).
+* `<kbd>`F2`</kbd>` to print inventory contents (debug).
 
 <!-- ## Screenshots
 

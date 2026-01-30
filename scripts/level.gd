@@ -29,11 +29,27 @@ func _ready():
 	if multiplayer_chat:
 		multiplayer_chat.message_sent.connect(_on_chat_message_sent)
 
+	Network.server_disconnected.connect(_on_server_disconnected)
+
 	if not multiplayer.is_server():
 		return
 
 	Network.connect("player_connected", Callable(self, "_on_player_connected"))
 	multiplayer.peer_disconnected.connect(_remove_player)
+
+func _on_server_disconnected():
+	print("Server disconnected, returning to menu...")
+	
+	for child in players_container.get_children():
+		child.queue_free()
+	
+	chat_visible = false
+	inventory_visible = false
+	multiplayer_chat.hide()
+	if inventory_ui:
+		inventory_ui.close_inventory()
+	
+	main_menu.show_menu()
 
 func _on_player_connected(peer_id, player_info):
 	_add_player(peer_id, player_info)

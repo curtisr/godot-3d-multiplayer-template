@@ -8,13 +8,17 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="TemplateOnlineMultiplayer"
 config/description="This is a foundational template for a 3D multiplayer game, developed in Godot Engine."
 config/tags=PackedStringArray("3d", "network")
 run/main_scene="res://scenes/level/level.tscn"
-config/features=PackedStringArray("4.5", "Forward Plus")
+config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.png"
 
 [autoload]
