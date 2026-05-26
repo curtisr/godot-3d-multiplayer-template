@@ -7,24 +7,23 @@
 radius = 0.14746094
 height = 0.4976349
 
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_4jbw6"]
-properties/0/path = NodePath(".:replicated_transform")
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_f8obb"]
+properties/0/path = NodePath(".:position")
 properties/0/spawn = true
-properties/0/replication_mode = 1
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 2
 
-[node name="RubyRedPotion" type="RigidBody3D" unique_id=1382101697]
-collision_layer = 4
-collision_mask = 7
-linear_damp = 1.0
-angular_damp = 1.0
+[node name="RubyRedPotion" type="RigidBody3D" unique_id=1895628841]
 script = ExtResource("1_f8obb")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=948879315]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25571442, 0)
 shape = SubResource("CapsuleShape3D_ah86n")
 
-[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=945400876]
-replication_config = SubResource("SceneReplicationConfig_4jbw6")
-
 [node name="red+potion+bottle+3d+model" parent="." unique_id=179960160 instance=ExtResource("2_f8obb")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1885090080]
+replication_config = SubResource("SceneReplicationConfig_f8obb")

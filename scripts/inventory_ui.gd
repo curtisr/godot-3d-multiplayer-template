@@ -105,15 +105,9 @@ func _on_item_selected(index: int):
 	elif index == Item.ContextOptions.READ:
 		print("read called")
 	elif index == Item.ContextOptions.DROP:
-		print( "attempting to load " )
-		print( current_item.scene_path )
-		var item_mesh = load( current_item.scene_path )
-		var instance = item_mesh.instantiate()
-		
-		# instance.global_position = current_player.global_position 
-		instance.position = current_player.get_node("3DGodotRobot/InfrontArea3D").global_position
-		get_node("../Environment/ItemContainer").add_child( instance, true )
-		
+		print( "attempting to drop item " )
+
+		current_player.add_world_item.rpc_id( 1, current_item.scene_path,  current_player.get_node("3DGodotRobot/InfrontArea3D").global_position )
 		slot.remove_item(1)
 		refresh_display()
 		pass

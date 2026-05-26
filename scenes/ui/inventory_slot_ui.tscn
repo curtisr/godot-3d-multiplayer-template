@@ -1,26 +1,36 @@
-[gd_scene load_steps=3 format=3 uid="uid://bglwdpf2mf7g0"]
+[gd_scene format=3 uid="uid://bglwdpf2mf7g0"]
 
 [ext_resource type="Script" uid="uid://bi0mlil0a0e5i" path="res://scripts/inventory_slot_ui.gd" id="1_5k8m7"]
 
+[sub_resource type="Gradient" id="Gradient_x57yu"]
+colors = PackedColorArray(0.25490198, 0.25490198, 0.25490198, 0.7529412, 0.69411767, 0.69411767, 0.69411767, 0.7529412)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_bpgql"]
+gradient = SubResource("Gradient_x57yu")
+fill_from = Vector2(0.5641026, 0.13675214)
+fill_to = Vector2(0.6367521, 0.89316237)
+
 [sub_resource type="ImageTexture" id="ImageTexture_r7xw6"]
 
-[node name="InventorySlotUI" type="Control"]
+[node name="InventorySlotUI" type="Control" unique_id=474797606]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 64.0
 offset_bottom = 64.0
 script = ExtResource("1_5k8m7")
 
-[node name="Background" type="NinePatchRect" parent="."]
+[node name="Background" type="NinePatchRect" parent="." unique_id=1249790917]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = -1.0
+offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = SubResource("ImageTexture_r7xw6")
+texture = SubResource("GradientTexture2D_bpgql")
 
-[node name="RarityBorder" type="NinePatchRect" parent="."]
+[node name="RarityBorder" type="NinePatchRect" parent="." unique_id=368028247]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -31,7 +41,7 @@ grow_vertical = 2
 texture = SubResource("ImageTexture_r7xw6")
 region_rect = Rect2(4, 4, 56, 56)
 
-[node name="ItemIcon" type="TextureRect" parent="."]
+[node name="ItemIcon" type="TextureRect" parent="." unique_id=1313582021]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -45,7 +55,7 @@ grow_vertical = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="QuantityLabel" type="Label" parent="."]
+[node name="QuantityLabel" type="Label" parent="." unique_id=1321791453]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0

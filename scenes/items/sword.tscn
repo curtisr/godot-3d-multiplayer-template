@@ -49,8 +49,15 @@ shadow_mesh = SubResource("ArrayMesh_a5m2q")
 [sub_resource type="BoxShape3D" id="BoxShape3D_l3uod"]
 size = Vector3(0.10058594, 1.8789063, 0.12371826)
 
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_l3uod"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+
 [node name="Sword" type="RigidBody3D" unique_id=1753633875]
-visible = false
 collision_layer = 4
 collision_mask = 7
 linear_damp = 1.0
@@ -67,3 +74,6 @@ mesh = SubResource("ArrayMesh_ywr3x")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=823586425]
 transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -0.68391585, 0.121322066, -0.004770279)
 shape = SubResource("BoxShape3D_l3uod")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=93561457]
+replication_config = SubResource("SceneReplicationConfig_l3uod")

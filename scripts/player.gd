@@ -91,8 +91,26 @@ func _physics_process(delta):
 	velocity.y -= gravity * delta
 
 	_move()
-	move_and_slide()
+	var collided = move_and_slide()
+	if collided:
+		collision()
+
+	# handle rigid body https://www.youtube.com/watch?v=SJuScDavstM
+	# don't allow the player to move if he's colliding? ewwww then he gets stuck right?	
+	
 	_body.animate(velocity)
+
+
+func collision():
+	for i in get_slide_collision_count():
+		var c = get_slide_collision(i)
+		if c.get_collider() is RigidBody3D:
+			#if recently_collided <= 0:
+		#	recently_collided = 1
+			# c.get_collider().apply_central_impulse(-c.get_normal()*25)
+			#print(" calling apply  force to server object " + c.get_collider().name + " normal " + str(c.get_normal()))
+			applyForceToServerObject.rpc_id( 1, c.get_collider().name, -1 * c.get_normal() )
+			# c.get_collider().apply_force(-c.get_normal() * 525)
 
 func _process(_delta):
 	if not multiplayer.has_multiplayer_peer(): return
@@ -347,19 +365,12 @@ func request_remove_item(item_id: String, quantity: int = 1):
 		if owner_id != 1:
 			sync_inventory_to_owner.rpc_id(owner_id, player_inventory.to_dict())
 
-@rpc("any_peer", "call_remote", "reliable")
+@rpc("authority", "call_local", "reliable")
 func add_world_item( scene_path:String, player_position:Vector3) -> void:
-	if not multiplayer.is_server():
-		return
-			
-	print("add item called")
-	var packed_scene = load( scene_path )
-	# instantiate_node creates on all clients and servers etc
-	var instance_item = packed_scene.instantiate()
-	var drop_node = %Environment
+	var instance_item = load( scene_path ).instantiate()
 	instance_item.position = player_position
-	
-	drop_node.add_child( instance_item, true )
+
+	get_node("/root/Level/Environment/ItemContainer").add_child( instance_item, 1 )
 
 func get_inventory() -> PlayerInventory:
 	return player_inventory
@@ -382,17 +393,31 @@ func _add_starting_items():
 	if armor:
 		player_inventory.add_item(armor, 1)
 
+# client calls this
 func pickup():
+	server_pickup.rpc_id(1)
+
+@rpc("any_peer", "call_local", "reliable")
+func server_pickup():
 	var array_of_items = get_node("3DGodotRobot/InfrontArea3D").get_overlapping_bodies()
 	for item in array_of_items:
 		if item.get("item_id") != null:
 			var result = request_add_single_item(item.get("item_id"))
 			if result:
 				print( "item addded to inventory")
-				item.free()
+				item.queue_free()
 			else:
 				print("unable to add item to inventory")
 
+@rpc("any_peer", "call_local", "reliable")
+func applyForceToServerObject( nameOfObject : String, normal : Vector3  ):
+	# originally get_tree().get_nodes_in_group("objects")
+	var object_node = get_node("/root/Level/Environment/ItemContainer")
+	if object_node != null:
+		for n in object_node.get_children():
+			if n.name == nameOfObject:
+				n.apply_force( normal * 100)
+	pass
 
 #func _on_infront_area_3d_body_entered(body: Node3D) -> void:
 #	if body.get("item_id") != null:

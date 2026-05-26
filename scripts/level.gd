@@ -93,7 +93,7 @@ func _remove_player(id):
 
 func _on_quit_pressed() -> void:
 	# are you sure?
-	# get_tree().quit()
+	get_tree().quit()
 	pass
 
 # ---------- MULTIPLAYER CHAT ----------

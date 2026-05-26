@@ -79,17 +79,13 @@ func eat():
 	print( "default eat happened, mmm tasty")	
 	
 func drop( drop_node : Node3D ):
-	
-	print( "default drop" )
-	
 	var player = drop_node.get_node("..")._get_local_player()
 	var marker_position = player.get_child("Marker3D").position
+
 	# drop at player position into "environment
-	print("green eggs and hame")
-	print( marker_position )
 	var player_position = player.position + marker_position
 	
-	player.add_world_item.rpc( scene_path, player_position )
+	player.add_world_item.rpc_id( 1, scene_path, player_position )
 
 
 

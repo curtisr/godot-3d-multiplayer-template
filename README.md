@@ -49,7 +49,7 @@ Ensure the script has execution permissions (`chmod +x run_headless_server.sh`) 
 * <kbd>B</kbd> to toggle inventory.
 * <kbd>F1</kbd> to add random test item (debug).
 * <kbd>F2</kbd> to print inventory contents (debug).
-
+w
 <!-- ## Screenshots
 
 <img src="./.github/img1.png" alt="Image Example" width="700px">

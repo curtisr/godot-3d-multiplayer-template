@@ -22,6 +22,14 @@ fog_enabled = true
 script = ExtResource("1_e1sh7")
 player_scene = ExtResource("1_uvcbi")
 
+[node name="ItemMultiplayerSpawner" type="MultiplayerSpawner" parent="." unique_id=150451317]
+unique_name_in_owner = true
+_spawnable_scenes = PackedStringArray("uid://dixt7j41ak3ft", "uid://ba8ffkgetdio6", "uid://bpcrivjdy82nk", "uid://bwudvnrsyts07", "uid://cqi5eaqaobb3e")
+spawn_path = NodePath("../Environment/ItemContainer")
+
+[node name="MonsterMultiplayerSpawner" type="MultiplayerSpawner" parent="." unique_id=960498580]
+spawn_path = NodePath("../Environment/MonsterContainer")
+
 [node name="Environment" type="Node3D" parent="." unique_id=523076069]
 unique_name_in_owner = true
 
@@ -43,17 +51,9 @@ transform = Transform3D(1, 0, 0, 0, -0.5, 0.866025, 0, -0.866025, -0.5, 0, 4, 0)
 shadow_enabled = true
 shadow_blur = 0.5
 
-[node name="ItemMultiplayerSpawner" type="MultiplayerSpawner" parent="Environment" unique_id=150451317]
-unique_name_in_owner = true
-_spawnable_scenes = PackedStringArray("uid://rkdtejltytl8", "uid://cqi5eaqaobb3e", "uid://ba8ffkgetdio6", "uid://dixt7j41ak3ft", "uid://bwudvnrsyts07")
-spawn_path = NodePath("../ItemContainer")
-
 [node name="ItemContainer" type="Node3D" parent="Environment" unique_id=1445003613]
 
 [node name="MonsterContainer" type="Node3D" parent="Environment" unique_id=392828310]
-
-[node name="MonsterMultiplayerSpawner" type="MultiplayerSpawner" parent="Environment" unique_id=960498580]
-spawn_path = NodePath("../MonsterContainer")
 
 [node name="PlayersContainer" type="Node3D" parent="." unique_id=1732952398]
 

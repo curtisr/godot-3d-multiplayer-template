@@ -7,15 +7,20 @@
 height = 0.6359863
 radius = 0.2685547
 
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_ewbxo"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+
 [node name="LeatherArmor" type="RigidBody3D" unique_id=1753633875]
 collision_layer = 4
 collision_mask = 7
 linear_damp = 1.0
 angular_damp = 1.0
 script = ExtResource("1_ewbxo")
-replicated_transform = null
-replicated_linear_velocity = null
-replicated_angular_velocity = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=823586425]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.014389515, 0.3792566, -0.004770279)
@@ -23,3 +28,6 @@ shape = SubResource("CylinderShape3D_m0q2q")
 
 [node name="leather_armor" parent="." unique_id=356856116 instance=ExtResource("2_ewbxo")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -3.4322183, 0)
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1459367149]
+replication_config = SubResource("SceneReplicationConfig_ewbxo")
