@@ -6,10 +6,13 @@ class_name InventoryUI
 @onready var close_button: Button = $Panel/MarginContainer/VBoxContainer/TitleBar/CloseButton
 @onready var tooltip: Control = $ItemTooltip
 @onready var tooltip_label: RichTextLabel = $ItemTooltip/Panel/MarginContainer/TooltipText
+@onready var menubar: MenuBar = $MenuBar
 
 var current_player: Character
 var slot_ui_scene: PackedScene
 var slot_uis: Array[InventorySlotUI] = []
+var current_item : Item
+var current_slot_index : int
 
 signal inventory_closed
 
@@ -63,12 +66,60 @@ func _handle_right_click(slot_index: int):
 		return
 
 	var player_inventory = current_player.get_inventory()
+	current_slot_index = slot_index
 	var slot = player_inventory.get_slot(slot_index)
 	if slot and not slot.is_empty():
-		var item = ItemDatabase.get_item(slot.item_id)
-		if item:
-			print("Right clicked on: ", item.name)
+		current_item = ItemDatabase.get_item(slot.item_id)
+		if current_item:
+			print("Right clicked on: ", current_item.name)
 			# TODO: Show context menu or perform quick action
+			_hide_tooltip()
+			var context_menu = PopupMenu.new()
+			menubar.add_child( context_menu )
+			context_menu.id_pressed.connect( _on_item_selected )
+			for item_option in current_item.context_options:
+				context_menu.add_item( _get_context_menu_string(item_option), item_option )
+			
+			context_menu.set_position( get_viewport().get_mouse_position() )
+			context_menu.popup()
+
+
+# we need a different on_item_selected for each object
+# for instance different potions would give different effects
+# maybe we can call the item specific function
+func _on_item_selected(index: int):
+	if not current_player or not current_player.get_inventory():
+		return
+	var player_inventory = current_player.get_inventory()	
+	var slot = player_inventory.get_slot(current_slot_index)
+	# use current_item member as it should be the associated item with this context menu
+	print( current_item.name + " is currently being context menu item selected ")
+	if index == Item.ContextOptions.DRINK:
+		print("Drink called")
+	elif index == Item.ContextOptions.EAT:
+		print("eat called")
+	elif index == Item.ContextOptions.EQUIP:
+		print("equip called")
+	elif index == Item.ContextOptions.THROW:
+		print("throw called")
+	elif index == Item.ContextOptions.READ:
+		print("read called")
+	elif index == Item.ContextOptions.DROP:
+		print( "attempting to load " )
+		print( current_item.scene_path )
+		var item_mesh = load( current_item.scene_path )
+		var instance = item_mesh.instantiate()
+		
+		# instance.global_position = current_player.global_position 
+		instance.position = current_player.get_node("3DGodotRobot/InfrontArea3D").global_position
+		get_node("../Environment/ItemContainer").add_child( instance, true )
+		
+		slot.remove_item(1)
+		refresh_display()
+		pass
+		
+
+			
 
 func _on_item_hovered(_slot_index: int, item: Item):
 	_show_tooltip(item)
@@ -135,6 +186,17 @@ func _get_rarity_string(rarity: Item.ItemRarity) -> String:
 		Item.ItemRarity.EPIC: return "Epic"
 		Item.ItemRarity.LEGENDARY: return "Legendary"
 		_: return "Unknown"
+
+func _get_context_menu_string( context: Item.ContextOptions ) -> String:
+	match context:
+		Item.ContextOptions.DRINK: return "Drink"
+		Item.ContextOptions.EAT: return "Eat"
+		Item.ContextOptions.DROP: return "Drop"
+		Item.ContextOptions.EQUIP: return "Equip"
+		Item.ContextOptions.THROW: return "Throw"
+		Item.ContextOptions.READ: return "Read"
+		_: return "Unknown"
+
 
 func handle_item_drop(from_slot: int, to_slot: int, inventory_type: String):
 	print("Moving item from slot ", from_slot, " to slot ", to_slot)

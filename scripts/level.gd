@@ -92,7 +92,9 @@ func _remove_player(id):
 		player_node.queue_free()
 
 func _on_quit_pressed() -> void:
-	get_tree().quit()
+	# are you sure?
+	# get_tree().quit()
+	pass
 
 # ---------- MULTIPLAYER CHAT ----------
 func toggle_chat():
@@ -176,7 +178,7 @@ func _get_local_player() -> Character:
 func _debug_add_item():
 	var local_player = _get_local_player()
 	if local_player:
-		var test_items = ["iron_sword", "health_potion", "leather_armor", "magic_gem", "iron_pickaxe"]
+		var test_items = ["health_potion" ] # , "leather_armor", "magic_gem", "iron_pickaxe"]
 		var random_item = test_items[randi() % test_items.size()]
 		print("Debug: Requesting to add ", random_item, " to player ", local_player.name, " (authority: ", local_player.get_multiplayer_authority(), ")")
 		local_player.request_add_item.rpc_id(1, random_item, 1)

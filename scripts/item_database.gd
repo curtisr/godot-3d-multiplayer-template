@@ -30,6 +30,7 @@ func _create_sample_items():
 	iron_sword.stackable = false
 	iron_sword.value = 50
 	iron_sword.icon = placeholder_icon
+	iron_sword.scene_path = "res://scenes/items/sword.tscn"
 	items[iron_sword.id] = iron_sword
 
 	# Health potion
@@ -43,6 +44,7 @@ func _create_sample_items():
 	health_potion.max_stack = 10
 	health_potion.value = 25
 	health_potion.icon = placeholder_icon
+	health_potion.scene_path = "res://scenes/items/ruby_red_potion.tscn"
 	items[health_potion.id] = health_potion
 
 	# Leather armor
@@ -55,6 +57,7 @@ func _create_sample_items():
 	leather_armor.stackable = false
 	leather_armor.value = 75
 	leather_armor.icon = placeholder_icon
+	leather_armor.scene_path = "res://scenes/items/leather_armor.tscn"
 	items[leather_armor.id] = leather_armor
 
 	# Magic gem
@@ -68,6 +71,7 @@ func _create_sample_items():
 	magic_gem.max_stack = 5
 	magic_gem.value = 200
 	magic_gem.icon = placeholder_icon
+	magic_gem.scene_path = "res://scenes/items/magic_gem.tscn"
 	items[magic_gem.id] = magic_gem
 
 	# Pickaxe tool
@@ -80,6 +84,7 @@ func _create_sample_items():
 	pickaxe.stackable = false
 	pickaxe.value = 100
 	pickaxe.icon = placeholder_icon
+	pickaxe.scene_path = "res://scenes/items/apple.tscn"
 	items[pickaxe.id] = pickaxe
 
 func add_item_to_database(item: Item) -> bool:

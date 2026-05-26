@@ -68,7 +68,9 @@ func _physics_process(delta):
 		if should_freeze:
 			freeze()
 			return
-
+	if Input.is_action_just_pressed("pickup") || get_node("3DGodotRobot/AnimationPlayer").current_animation == "Emote2" :
+		_body.play_pickup()
+		return
 	if is_on_floor():
 		can_double_jump = true
 		has_double_jumped = false
@@ -296,6 +298,29 @@ func request_add_item(item_id: String, quantity: int = 1):
 			if level_scene and level_scene.has_method("update_local_inventory_display"):
 				level_scene.update_local_inventory_display()
 
+#@rpc("any_peer", "call_local", "reliable")
+func request_add_single_item(item_id: String) -> bool:
+	print("Debug: request_add_item called on player ", name, " (authority: ", get_multiplayer_authority(), ") by client ", multiplayer.get_remote_sender_id())
+	var item = ItemDatabase.get_item(item_id)
+	if not item:
+		push_warning("Item not found: " + item_id)
+		return false
+
+	var remaining = player_inventory.add_item(item, 1)
+
+	if remaining == 0:
+		var owner_id = get_multiplayer_authority()
+		if owner_id != 1:
+			sync_inventory_to_owner.rpc_id(owner_id, player_inventory.to_dict())
+		else:
+			var level_scene = get_tree().get_current_scene()
+			if level_scene and level_scene.has_method("update_local_inventory_display"):
+				level_scene.update_local_inventory_display()
+		return true
+	else:
+		return false
+
+
 @rpc("any_peer", "call_local", "reliable")
 func request_remove_item(item_id: String, quantity: int = 1):
 	print("Debug: request_remove_item called on player ", name, " (authority: ", get_multiplayer_authority(), ") by client ", multiplayer.get_remote_sender_id())
@@ -322,6 +347,20 @@ func request_remove_item(item_id: String, quantity: int = 1):
 		if owner_id != 1:
 			sync_inventory_to_owner.rpc_id(owner_id, player_inventory.to_dict())
 
+@rpc("any_peer", "call_remote", "reliable")
+func add_world_item( scene_path:String, player_position:Vector3) -> void:
+	if not multiplayer.is_server():
+		return
+			
+	print("add item called")
+	var packed_scene = load( scene_path )
+	# instantiate_node creates on all clients and servers etc
+	var instance_item = packed_scene.instantiate()
+	var drop_node = %Environment
+	instance_item.position = player_position
+	
+	drop_node.add_child( instance_item, true )
+
 func get_inventory() -> PlayerInventory:
 	return player_inventory
 
@@ -331,8 +370,32 @@ func _add_starting_items():
 
 	var sword = ItemDatabase.get_item("iron_sword")
 	var potion = ItemDatabase.get_item("health_potion")
-
+	var gem = ItemDatabase.get_item("magic_gem")
+	var armor = ItemDatabase.get_item("leather_armor")
+	
 	if sword:
 		player_inventory.add_item(sword, 1)
 	if potion:
 		player_inventory.add_item(potion, 3)
+	if gem:
+		player_inventory.add_item(gem, 5)
+	if armor:
+		player_inventory.add_item(armor, 1)
+
+func pickup():
+	var array_of_items = get_node("3DGodotRobot/InfrontArea3D").get_overlapping_bodies()
+	for item in array_of_items:
+		if item.get("item_id") != null:
+			var result = request_add_single_item(item.get("item_id"))
+			if result:
+				print( "item addded to inventory")
+				item.free()
+			else:
+				print("unable to add item to inventory")
+
+
+#func _on_infront_area_3d_body_entered(body: Node3D) -> void:
+#	if body.get("item_id") != null:
+#		get_overlapping_bodies()
+#		print( body.item_id + " has enetered in front area of player")
+#	pass # Replace with function body.
