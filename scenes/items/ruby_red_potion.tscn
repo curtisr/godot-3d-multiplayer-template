@@ -16,6 +16,8 @@ properties/1/spawn = true
 properties/1/replication_mode = 2
 
 [node name="RubyRedPotion" type="RigidBody3D" unique_id=1895628841]
+collision_layer = 4
+collision_mask = 7
 script = ExtResource("1_f8obb")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=948879315]
