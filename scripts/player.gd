@@ -427,18 +427,25 @@ func _add_starting_items():
 # client calls this
 func pickup():
 	var array_of_items = get_node("3DGodotRobot/InfrontArea3D").get_overlapping_bodies()
-	var i = 0
 	for item in array_of_items:
 		if item.get("item_id") != null:
 			var result = request_add_single_item(item.get("item_id"))
 			if result:
 				print( "item added to inventory")
-				array_of_items.remove_at(i)
-				get_tree().queue_delete(item)
-				# item.queue_free()
+				delete_node_on_all.rpc_id( 1, item.get_path() )
 			else:
 				print("unable to add item to inventory")
-		i += 1
+
+
+# This function will be called only on the server/host
+@rpc("authority", "call_local", "reliable")
+func delete_node_on_all( node_path: NodePath) -> void:
+	var node = get_node_or_null(node_path)
+	if node:
+		node.queue_free()  # Removes the node and all its children
+	else:
+		push_warning("Node not found: %s" % node_path)
+
 
 @rpc("any_peer", "call_local", "reliable")
 func applyForceToServerObject( nameOfObject : String, normal : Vector3  ):
