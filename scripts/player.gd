@@ -59,6 +59,7 @@ func _ready():
 			request_inventory_sync.rpc_id(1)
 
 func _physics_process(delta):
+	var is_idle = true
 	if player_health <= 0:
 		return
 	if not multiplayer.has_multiplayer_peer(): return
@@ -100,8 +101,7 @@ func _physics_process(delta):
 		
 	if Input.is_action_just_pressed("attack") || get_node("3DGodotRobot/AnimationPlayer").current_animation == "Attack1":
 		_body.play_attack_animation()
-		_move()
-		return
+		is_idle = false
 		
 	if is_on_floor():
 		can_double_jump = true
@@ -110,7 +110,8 @@ func _physics_process(delta):
 		if Input.is_action_just_pressed("jump"):
 			velocity.y = JUMP_VELOCITY
 			can_double_jump = true
-			_body.play_jump_animation("Jump")
+			if is_idle:
+				_body.play_jump_animation("Jump")
 	else:
 		velocity.y -= gravity * delta
 
@@ -118,7 +119,8 @@ func _physics_process(delta):
 			velocity.y = JUMP_VELOCITY
 			has_double_jumped = true
 			can_double_jump = false
-			_body.play_jump_animation("Jump2")
+			if is_idle:
+				_body.play_jump_animation("Jump2")
 
 	velocity.y -= gravity * delta
 
@@ -129,8 +131,8 @@ func _physics_process(delta):
 
 	# handle rigid body https://www.youtube.com/watch?v=SJuScDavstM
 	# don't allow the player to move if he's colliding? ewwww then he gets stuck right?	
-	
-	_body.animate(velocity)
+	if is_idle:
+		_body.animate(velocity)
 
 
 func collision():
