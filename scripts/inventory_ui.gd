@@ -139,7 +139,8 @@ func _on_item_selected(index: int):
 	elif index == Item.ContextOptions.DROP:
 		print( "attempting to drop item " )
 		current_player.add_world_item.rpc_id( 1, current_item.scene_path,  current_player.get_node("3DGodotRobot/InfrontArea3D").global_position )
-		slot.remove_item(1)
+		current_player.request_remove_item.rpc_id( 1,  current_item.id, 1 )
+		#slot.remove_item(1)
 		refresh_display()
 		pass
 
