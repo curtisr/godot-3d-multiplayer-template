@@ -115,8 +115,6 @@ func _handle_right_click(slot_index: int):
 func _on_item_selected(index: int):
 	if not current_player or not current_player.get_inventory():
 		return
-	var player_inventory = current_player.get_inventory()	
-	var slot = player_inventory.get_slot(current_slot_index)
 	 
 	# use current_item member as it should be the associated item with this context menu
 	print( current_item.name + " is currently being context menu item selected ")
@@ -124,7 +122,7 @@ func _on_item_selected(index: int):
 		var result = current_item.context_callable[Item.ContextOptions.DRINK].call()
 		# potion drank remove the item
 		if result:
-			slot.remove_item(1)
+			current_player.request_remove_item.rpc_id( 1,  current_item.id, 1 )
 			refresh_display()
 	elif index == Item.ContextOptions.EXAMINE:
 		current_item.context_callable[Item.ContextOptions.EXAMINE].call()
@@ -140,7 +138,6 @@ func _on_item_selected(index: int):
 		print( "attempting to drop item " )
 		current_player.add_world_item.rpc_id( 1, current_item.scene_path,  current_player.get_node("3DGodotRobot/InfrontArea3D").global_position )
 		current_player.request_remove_item.rpc_id( 1,  current_item.id, 1 )
-		#slot.remove_item(1)
 		refresh_display()
 		pass
 
