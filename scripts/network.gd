@@ -94,3 +94,18 @@ func skin_str_to_e(s):
 		"green": return Character.SkinColor.GREEN
 		"red": return Character.SkinColor.RED
 		_: return Character.SkinColor.BLUE
+
+# get the client player 
+func getPlayer() -> Character:
+	var result = null
+	var rPlayers = get_tree().get_nodes_in_group("Players")
+	if rPlayers && rPlayers.size() > 0:
+		var node_array = rPlayers[0].get_children()
+		for tmp in node_array:
+			if tmp.is_multiplayer_authority():
+				result = tmp
+	else:
+		print("error unable to find player")
+			
+			
+	return result

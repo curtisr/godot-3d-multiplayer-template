@@ -4,15 +4,29 @@ extends Resource
 @export var id: String = ""
 @export var name: String = ""
 @export var description: String = ""
+@export var description_identified: String = ""
 @export var icon: Texture2D
 
+@export var identified: bool = false
+@export var blessed: Blessed = Blessed.NORMAL
 @export var stackable: bool = true
 @export var max_stack: int = 99
 
 @export var item_type: ItemType = ItemType.MISC
 @export var rarity: ItemRarity = ItemRarity.COMMON
 @export var value: int = 0
+# default context menu option is drop
+@export var context_options: Array[Item.ContextOptions] = []
+@export var context_callable: Dictionary
 
+# default scene to use
+@export var scene_path: String = "res://scenes/items/apple.tscn" 
+
+enum Blessed { 
+	CURSED,
+	NORMAL,
+	BLESSED
+}
 enum ItemType {
 	WEAPON,
 	ARMOR,
@@ -29,27 +43,75 @@ enum ItemRarity {
 	LEGENDARY
 }
 
+enum ContextOptions { 
+	DRINK,
+	EAT, 
+	DROP,
+	EQUIP,
+	THROW,
+	READ,
+	EXAMINE,
+}
+
 func to_dict() -> Dictionary:
 	return {
 		"id": id,
 		"name": name,
 		"description": description,
+		"description_identified": description_identified, 
 		"stackable": stackable,
 		"max_stack": max_stack,
 		"item_type": item_type,
 		"rarity": rarity,
-		"value": value
+		"value": value,
+		"context_options": context_options,
+		"context_callable": context_callable,
+		"scene_path": scene_path
 	}
 
 func from_dict(data: Dictionary) -> void:
 	id = data.get("id", "")
 	name = data.get("name", "")
 	description = data.get("description", "")
+	description_identified = data.get("description_identified", "")
 	stackable = data.get("stackable", true)
 	max_stack = data.get("max_stack", 99)
 	item_type = data.get("item_type", ItemType.MISC)
 	rarity = data.get("rarity", ItemRarity.COMMON)
 	value = data.get("value", 0)
-
+	context_options = data.get("context_options", [ContextOptions.EXAMINE,ContextOptions.DROP])
+	context_callable = data.get("context_callable", {ContextOptions.EXAMINE:examine, ContextOptions.DROP:drop})
+	scene_path = data.get("scene_path", "res://scenes/items/apple.tscn")
+	
+ 
 func can_stack_with(other_item: Item) -> bool:
 	return stackable && other_item.stackable && id == other_item.id
+
+static func examine():
+	print("you examine in the object - add this text to the chat.")
+	
+static func drop():
+	# see inventory_ui for standard drop method
+	pass
+
+static func equip():
+	print( "default equip" )
+
+static func throw():
+	print( "default throw")
+
+static func read():
+	print("default read called")
+	
+static func drink() -> bool:
+	print("default drink called")
+	return true
+	
+static func static_drop():
+	print("nothing to see here")
+		
+func set_context_options( val : Array[Item.ContextOptions]):
+	context_options = val
+	
+func set_context_callable( val : Dictionary):
+	context_callable = val

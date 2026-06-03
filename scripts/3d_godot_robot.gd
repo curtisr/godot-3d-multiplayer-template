@@ -30,7 +30,19 @@ func animate(_velocity: Vector3) -> void:
 		return
 
 	animation_player.play("Idle")
+	
+func play_hurt() -> void:
+	if animation_player:
+		animation_player.play("Hurt")
+		
+func play_pickup() -> void:
+	if _character.is_on_floor():
+		animation_player.play("Emote2")
 
 func play_jump_animation(jump_type: String = "Jump") -> void:
 	if animation_player:
 		animation_player.play(jump_type)
+
+func play_attack_animation() -> void:
+	if animation_player:
+		animation_player.play("Attack1")

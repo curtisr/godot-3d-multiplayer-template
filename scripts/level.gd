@@ -6,6 +6,7 @@ extends Node3D
 
 @onready var multiplayer_chat: MultiplayerChatUI = $MultiplayerChatUI
 @onready var inventory_ui: InventoryUI = $InventoryUI
+@onready var health_bar: HealthBar = $HealthBar
 
 var chat_visible = false
 var inventory_visible = false

@@ -30,6 +30,11 @@ func _create_sample_items():
 	iron_sword.stackable = false
 	iron_sword.value = 50
 	iron_sword.icon = placeholder_icon
+	iron_sword.set_context_options([Item.ContextOptions.THROW,Item.ContextOptions.EQUIP,Item.ContextOptions.DROP])
+	iron_sword.set_context_callable({Item.ContextOptions.THROW:Item.throw,
+									 Item.ContextOptions.EQUIP:Item.equip,
+									 Item.ContextOptions.DROP:Item.static_drop})
+	iron_sword.scene_path = "res://scenes/items/weapons/sword.tscn"
 	items[iron_sword.id] = iron_sword
 
 	# Health potion
@@ -43,6 +48,11 @@ func _create_sample_items():
 	health_potion.max_stack = 10
 	health_potion.value = 25
 	health_potion.icon = placeholder_icon
+	health_potion.scene_path = "res://scenes/items/potions/ruby_red_potion.tscn"
+	health_potion.set_context_options([Item.ContextOptions.THROW,Item.ContextOptions.DRINK,Item.ContextOptions.DROP])
+	health_potion.set_context_callable({Item.ContextOptions.THROW:Item.throw,
+									 Item.ContextOptions.DRINK:RubyRedPotion3D.drink,
+									 Item.ContextOptions.DROP:Item.static_drop})	
 	items[health_potion.id] = health_potion
 
 	# Leather armor
@@ -55,6 +65,10 @@ func _create_sample_items():
 	leather_armor.stackable = false
 	leather_armor.value = 75
 	leather_armor.icon = placeholder_icon
+	leather_armor.scene_path = "res://scenes/items/armors/leather_armor.tscn"
+	leather_armor.set_context_options([Item.ContextOptions.EQUIP, Item.ContextOptions.DROP])
+	leather_armor.set_context_callable({Item.ContextOptions.EQUIP:Item.equip,
+									 	Item.ContextOptions.DROP:Item.static_drop})	
 	items[leather_armor.id] = leather_armor
 
 	# Magic gem
@@ -68,6 +82,10 @@ func _create_sample_items():
 	magic_gem.max_stack = 5
 	magic_gem.value = 200
 	magic_gem.icon = placeholder_icon
+	magic_gem.scene_path = "res://scenes/items/gems/magic_gem.tscn"
+	magic_gem.set_context_options([Item.ContextOptions.THROW,Item.ContextOptions.DROP])
+	magic_gem.set_context_callable({Item.ContextOptions.THROW:Item.throw,
+									 	Item.ContextOptions.DROP:Item.static_drop})	
 	items[magic_gem.id] = magic_gem
 
 	# Pickaxe tool
@@ -75,11 +93,16 @@ func _create_sample_items():
 	pickaxe.id = "iron_pickaxe"
 	pickaxe.name = "Iron Pickaxe"
 	pickaxe.description = "A mining tool for gathering resources."
-	pickaxe.item_type = Item.ItemType.TOOL
+	pickaxe.item_type = Item.ItemType.WEAPON
 	pickaxe.rarity = Item.ItemRarity.COMMON
 	pickaxe.stackable = false
 	pickaxe.value = 100
 	pickaxe.icon = placeholder_icon
+	pickaxe.scene_path = "res://scenes/items/food/apple.tscn"
+	pickaxe.set_context_options([Item.ContextOptions.THROW,Item.ContextOptions.EQUIP,Item.ContextOptions.DROP])
+	pickaxe.set_context_callable({Item.ContextOptions.THROW:Item.throw,
+								Item.ContextOptions.EQUIP:Item.equip,
+								Item.ContextOptions.DROP:Item.static_drop})	
 	items[pickaxe.id] = pickaxe
 
 func add_item_to_database(item: Item) -> bool:

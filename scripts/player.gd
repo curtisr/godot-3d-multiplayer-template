@@ -20,6 +20,8 @@ var player_inventory: PlayerInventory
 @export var yellow_texture : CompressedTexture2D
 @export var green_texture : CompressedTexture2D
 @export var red_texture : CompressedTexture2D
+@export var player_health : int = 10
+@export var player_hurt : int = 0
 
 @onready var _bottom_mesh: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Bottom")
 @onready var _chest_mesh: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Chest")
@@ -46,6 +48,9 @@ func _ready():
 	if is_local_player:
 		player_inventory = PlayerInventory.new()
 		_add_starting_items()
+		
+		var level_scene = get_tree().get_current_scene()
+		level_scene.get_node("HealthBar").visible = true
 	elif multiplayer.is_server():
 		player_inventory = PlayerInventory.new()
 		_add_starting_items()
@@ -54,6 +59,8 @@ func _ready():
 			request_inventory_sync.rpc_id(1)
 
 func _physics_process(delta):
+	if player_health <= 0:
+		return
 	if not multiplayer.has_multiplayer_peer(): return
 	if not is_multiplayer_authority(): return
 
@@ -68,7 +75,34 @@ func _physics_process(delta):
 		if should_freeze:
 			freeze()
 			return
-
+	
+	if player_hurt > 0 || get_node("3DGodotRobot/AnimationPlayer").current_animation == "Hurt": 
+		# invicible while hurt
+		if get_node("3DGodotRobot/AnimationPlayer").current_animation != "Hurt":
+			player_health -= player_hurt
+		player_hurt = 0
+		_body.play_hurt()
+		if !current_scene:
+			current_scene = get_tree().get_current_scene()
+		current_scene.health_bar.set_bar(player_health)
+		if player_health == 0:
+			#get_node("3DGodotRobot/AnimationPlayer").play("Dive")
+			#rotation.x = 90
+			#get_node("CollisionShape3D").disabled = true
+			#we are dead!
+			pass
+		return
+			
+			
+	if Input.is_action_just_pressed("pickup") || get_node("3DGodotRobot/AnimationPlayer").current_animation == "Emote2" :
+		_body.play_pickup()
+		return
+		
+	if Input.is_action_just_pressed("attack") || get_node("3DGodotRobot/AnimationPlayer").current_animation == "Attack1":
+		_body.play_attack_animation()
+		_move()
+		return
+		
 	if is_on_floor():
 		can_double_jump = true
 		has_double_jumped = false
@@ -89,8 +123,21 @@ func _physics_process(delta):
 	velocity.y -= gravity * delta
 
 	_move()
-	move_and_slide()
+	var collided = move_and_slide()
+	if collided:
+		collision()
+
+	# handle rigid body https://www.youtube.com/watch?v=SJuScDavstM
+	# don't allow the player to move if he's colliding? ewwww then he gets stuck right?	
+	
 	_body.animate(velocity)
+
+
+func collision():
+	for i in get_slide_collision_count():
+		var c = get_slide_collision(i)
+		if c.get_collider() is RigidBody3D:
+			applyForceToServerObject.rpc_id( 1, c.get_collider().name, -1 * c.get_normal() )
 
 func _process(_delta):
 	if not multiplayer.has_multiplayer_peer(): return
@@ -297,6 +344,33 @@ func request_add_item(item_id: String, quantity: int = 1):
 				level_scene.update_local_inventory_display()
 
 @rpc("any_peer", "call_local", "reliable")
+func request_add_single_item(item_id: String) -> bool:
+	print("Debug: request_add_item called on player ", name, " (authority: ", get_multiplayer_authority(), ") by client ", multiplayer.get_remote_sender_id())
+
+	if player_inventory == null:
+		return false
+	
+	var item = ItemDatabase.get_item(item_id)
+	if not item:
+		push_warning("Item not found: " + item_id)
+		return false
+
+	var remaining = player_inventory.add_item(item, 1)
+
+	if remaining == 0:
+		var owner_id = get_multiplayer_authority()
+		if owner_id != 1:
+			sync_inventory_to_owner.rpc_id(owner_id, player_inventory.to_dict())
+		else:
+			var level_scene = get_tree().get_current_scene()
+			if level_scene and level_scene.has_method("update_local_inventory_display"):
+				level_scene.update_local_inventory_display()
+		return true
+	else:
+		return false
+
+
+@rpc("any_peer", "call_local", "reliable")
 func request_remove_item(item_id: String, quantity: int = 1):
 	print("Debug: request_remove_item called on player ", name, " (authority: ", get_multiplayer_authority(), ") by client ", multiplayer.get_remote_sender_id())
 
@@ -322,6 +396,13 @@ func request_remove_item(item_id: String, quantity: int = 1):
 		if owner_id != 1:
 			sync_inventory_to_owner.rpc_id(owner_id, player_inventory.to_dict())
 
+@rpc("authority", "call_local", "reliable")
+func add_world_item( scene_path:String, player_position:Vector3) -> void:
+	var instance_item = load( scene_path ).instantiate()
+	instance_item.position = player_position
+
+	get_node("/root/Level/Environment/ItemContainer").add_child( instance_item, 1 )
+
 func get_inventory() -> PlayerInventory:
 	return player_inventory
 
@@ -331,8 +412,74 @@ func _add_starting_items():
 
 	var sword = ItemDatabase.get_item("iron_sword")
 	var potion = ItemDatabase.get_item("health_potion")
-
+	var gem = ItemDatabase.get_item("magic_gem")
+	var armor = ItemDatabase.get_item("leather_armor")
+	
 	if sword:
 		player_inventory.add_item(sword, 1)
 	if potion:
 		player_inventory.add_item(potion, 3)
+	if gem:
+		player_inventory.add_item(gem, 5)
+	if armor:
+		player_inventory.add_item(armor, 1)
+
+# client calls this
+func pickup():
+	server_pickup.rpc()
+
+@rpc("any_peer", "call_local", "reliable")
+func server_pickup():
+	var array_of_items = get_node("3DGodotRobot/InfrontArea3D").get_overlapping_bodies()
+	var i = 0
+	for item in array_of_items:
+		if item.get("item_id") != null:
+			var result = request_add_single_item(item.get("item_id"))
+			if result:
+				print( "item added to inventory")
+				array_of_items.remove_at(i)
+				item.queue_free()
+			else:
+				print("unable to add item to inventory")
+		i += 1
+
+@rpc("any_peer", "call_local", "reliable")
+func applyForceToServerObject( nameOfObject : String, normal : Vector3  ):
+	# originally get_tree().get_nodes_in_group("objects")
+	var object_node = get_node("/root/Level/Environment/ItemContainer")
+	if object_node != null:
+		for n in object_node.get_children():
+			if n.name == nameOfObject:
+				n.apply_force( normal * 100)
+
+
+func equip_armor( armor_name : String ):
+	var node3d = get_node("3DGodotRobot/RobotArmature/Skeleton3D/HeadAttach/"+armor_name) as Node3D
+	node3d.visible = true
+
+func equip_weapon( weapon_name : String ):
+	var node3d = get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/"+weapon_name) as Node3D
+	node3d.visible = true
+	pass
+
+@rpc("any_peer", "call_local", "reliable")
+func hurt( damage : int ):
+	if damage > 0:
+		player_hurt = damage
+
+# enable the weapon or disabled based on the attack animation
+func weapon_disabled():
+	# godot("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/iron_sword").
+	get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/HurtArea").monitoring = false
+	get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/iron_pickaxe/HurtArea").monitoring = false
+	get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/iron_sword/HurtArea").monitoring = false
+	pass
+	
+func weapon_enabled():
+	if !is_multiplayer_authority():
+		return
+	get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/HurtArea").monitoring = true	
+	get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/iron_pickaxe/HurtArea").monitoring = true
+	get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/iron_sword/HurtArea").monitoring = true
+	pass
+	
