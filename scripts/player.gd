@@ -426,10 +426,6 @@ func _add_starting_items():
 
 # client calls this
 func pickup():
-	server_pickup.rpc()
-
-@rpc("any_peer", "call_local", "reliable")
-func server_pickup():
 	var array_of_items = get_node("3DGodotRobot/InfrontArea3D").get_overlapping_bodies()
 	var i = 0
 	for item in array_of_items:
@@ -438,7 +434,8 @@ func server_pickup():
 			if result:
 				print( "item added to inventory")
 				array_of_items.remove_at(i)
-				item.queue_free()
+				get_tree().queue_delete(item)
+				# item.queue_free()
 			else:
 				print("unable to add item to inventory")
 		i += 1

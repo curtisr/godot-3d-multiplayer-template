@@ -15,6 +15,7 @@ func _ready():
 	if DisplayServer.get_name() == "headless":
 		print("Dedicated server starting...")
 		Network.start_host("", "")
+		spawn_loot()
 
 	multiplayer_chat.hide()
 	main_menu.show_menu()
@@ -37,7 +38,33 @@ func _ready():
 
 	Network.connect("player_connected", Callable(self, "_on_player_connected"))
 	multiplayer.peer_disconnected.connect(_remove_player)
-
+	
+func spawn_loot():
+	if multiplayer.is_server():
+		var lootRoot = get_node("Environment/ItemContainer")
+		
+		var magic_gem = load("res://scenes/items/gems/magic_gem.tscn")
+		var loot_item = magic_gem.instantiate()
+		loot_item.position = Vector3( -17.43, 0.025, 5.114 )
+		lootRoot.add_child(loot_item, true) # true triggers replication
+		
+		loot_item = magic_gem.instantiate()
+		loot_item.position = Vector3( 0, 1.276, 17.786 )
+		lootRoot.add_child(loot_item, true) # true triggers replication
+		
+		loot_item = magic_gem.instantiate()
+		loot_item.position = Vector3( 12.454, 0, 0 )
+		lootRoot.add_child(loot_item, true) # true triggers replication
+		
+		loot_item = magic_gem.instantiate()
+		loot_item.position = Vector3( 0, 0, -6.283 )
+		lootRoot.add_child(loot_item, true) # true triggers replication
+	
+		var pickaxe = load("res://scenes/items/weapons/pickaxe.tscn")
+		loot_item = pickaxe.instantiate()
+		loot_item.position = Vector3( 1.2, 7.6, 4.7 )
+		lootRoot.add_child(loot_item, true) # true triggers replication
+		
 func _on_server_disconnected():
 	print("Server disconnected, returning to menu...")
 	
@@ -58,6 +85,8 @@ func _on_player_connected(peer_id, player_info):
 func _on_host_pressed(nickname: String, skin: String):
 	main_menu.hide_menu()
 	Network.start_host(nickname, skin)
+	spawn_loot()
+
 
 func _on_join_pressed(nickname: String, skin: String, address: String):
 	main_menu.hide_menu()
