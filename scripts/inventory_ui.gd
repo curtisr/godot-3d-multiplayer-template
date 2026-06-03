@@ -264,7 +264,7 @@ func _input(event):
 			_on_close_pressed()
 
 func handle_weapon_equip( from_slot:int, item:Dictionary):
-	if item.inventory_type == Item.ItemType.WEAPON:
+	if item.inventory_type == Item.ItemType.WEAPON and weapon_slot_ui.inventory_data == null:
 		current_player = Network.getPlayer()
 		if not current_player or not current_player.get_inventory():
 			return
@@ -282,7 +282,7 @@ func handle_weapon_equip( from_slot:int, item:Dictionary):
 
 
 func handle_armor_equip( from_slot:int, item:Dictionary):
-	if item.inventory_type == Item.ItemType.ARMOR:
+	if item.inventory_type == Item.ItemType.ARMOR and armor_slot_ui.inventory_data == null:
 		current_player = Network.getPlayer()
 		if not current_player or not current_player.get_inventory():
 			return
