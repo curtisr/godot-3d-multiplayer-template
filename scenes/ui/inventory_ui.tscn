@@ -63,6 +63,73 @@ size_flags_horizontal = 4
 size_flags_vertical = 3
 columns = 4
 
+[node name="Weapon" type="Panel" parent="." unique_id=825838901]
+layout_mode = 0
+offset_left = 231.0
+offset_top = 160.0
+offset_right = 439.0
+offset_bottom = 316.0
+
+[node name="MarginContainer" type="MarginContainer" parent="Weapon" unique_id=564424952]
+layout_mode = 0
+offset_right = 206.0
+offset_bottom = 155.0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Weapon/MarginContainer" unique_id=741072650]
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+
+[node name="Label" type="Label" parent="Weapon/MarginContainer/VBoxContainer" unique_id=1876493316]
+layout_mode = 2
+text = "Weapon"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="Weapon/MarginContainer/VBoxContainer" unique_id=1857717218]
+layout_mode = 2
+
+[node name="Armor" type="Panel" parent="." unique_id=79975516]
+layout_mode = 0
+offset_left = 233.0
+offset_top = 346.0
+offset_right = 441.0
+offset_bottom = 502.0
+
+[node name="MarginContainer" type="MarginContainer" parent="Armor" unique_id=420675710]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 208.0
+offset_bottom = 152.0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Armor/MarginContainer" unique_id=2065537359]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+
+[node name="Label" type="Label" parent="Armor/MarginContainer/VBoxContainer" unique_id=1743718879]
+layout_mode = 2
+text = "Armor"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="Armor/MarginContainer/VBoxContainer" unique_id=1922506625]
+layout_mode = 2
+
+[node name="MenuBar" type="MenuBar" parent="." unique_id=534801660]
+visible = false
+layout_mode = 0
+offset_right = 242.0
+offset_bottom = 252.0
+
 [node name="ItemTooltip" type="Control" parent="." unique_id=1254507357]
 visible = false
 layout_mode = 1
@@ -100,70 +167,3 @@ Type: Weapon
 Rarity: Common
 Value: 100 gold"
 fit_content = true
-
-[node name="MenuBar" type="MenuBar" parent="." unique_id=534801660]
-visible = false
-layout_mode = 0
-offset_right = 242.0
-offset_bottom = 252.0
-
-[node name="Armor" type="Panel" parent="." unique_id=79975516]
-layout_mode = 0
-offset_left = 233.0
-offset_top = 346.0
-offset_right = 441.0
-offset_bottom = 502.0
-
-[node name="MarginContainer" type="MarginContainer" parent="Armor" unique_id=420675710]
-layout_mode = 0
-offset_left = 2.0
-offset_top = 2.0
-offset_right = 208.0
-offset_bottom = 152.0
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Armor/MarginContainer" unique_id=2065537359]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 0
-
-[node name="Label" type="Label" parent="Armor/MarginContainer/VBoxContainer" unique_id=1743718879]
-layout_mode = 2
-text = "Armor"
-horizontal_alignment = 1
-
-[node name="HSeparator" type="HSeparator" parent="Armor/MarginContainer/VBoxContainer" unique_id=1922506625]
-layout_mode = 2
-
-[node name="Weapon" type="Panel" parent="." unique_id=825838901]
-layout_mode = 0
-offset_left = 231.0
-offset_top = 160.0
-offset_right = 439.0
-offset_bottom = 316.0
-
-[node name="MarginContainer" type="MarginContainer" parent="Weapon" unique_id=564424952]
-layout_mode = 0
-offset_right = 206.0
-offset_bottom = 155.0
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Weapon/MarginContainer" unique_id=741072650]
-clip_contents = true
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 0
-
-[node name="Label" type="Label" parent="Weapon/MarginContainer/VBoxContainer" unique_id=1876493316]
-layout_mode = 2
-text = "Weapon"
-horizontal_alignment = 1
-
-[node name="HSeparator" type="HSeparator" parent="Weapon/MarginContainer/VBoxContainer" unique_id=1857717218]
-layout_mode = 2
