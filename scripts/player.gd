@@ -456,6 +456,9 @@ func applyForceToServerObject( nameOfObject : String, normal : Vector3  ):
 			if n.name == nameOfObject:
 				n.apply_force( normal * 100)
 
+func hide_armor( armor_name : String ):
+	var node3d = get_node("3DGodotRobot/RobotArmature/Skeleton3D/HeadAttach/"+armor_name) as Node3D
+	node3d.visible = false
 
 func equip_armor( armor_name : String ):
 	var node3d = get_node("3DGodotRobot/RobotArmature/Skeleton3D/HeadAttach/"+armor_name) as Node3D
@@ -465,6 +468,12 @@ func equip_weapon( weapon_name : String ):
 	var node3d = get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/"+weapon_name) as Node3D
 	node3d.visible = true
 	pass
+
+func hide_weapon( weapon_name : String ):
+	var node3d = get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/"+weapon_name) as Node3D
+	node3d.visible = false
+	pass
+
 
 @rpc("any_peer", "call_local", "reliable")
 func hurt( damage : int ):

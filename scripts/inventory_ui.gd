@@ -8,6 +8,9 @@ class_name InventoryUI
 @onready var tooltip_label: RichTextLabel = $ItemTooltip/Panel/MarginContainer/TooltipText
 @onready var menubar: MenuBar = $MenuBar
 
+var SLOT_INDEX_WEAPON = -1
+var SLOT_INDEX_ARMOR = -2
+
 var current_player: Character
 var slot_ui_scene: PackedScene
 var slot_uis: Array[InventorySlotUI] = []
@@ -220,8 +223,22 @@ func _get_context_menu_string( context: Item.ContextOptions ) -> String:
 
 func handle_item_drop(from_slot: int, to_slot: int, inventory_type: String):
 	print("Moving item from slot ", from_slot, " to slot ", to_slot, " type ", inventory_type)
-
-	if current_player:
+		
+	if from_slot == SLOT_INDEX_WEAPON: 
+		var result = current_player.request_add_single_item(inventory_type)
+		if result:
+			current_player.hide_weapon( weapon_slot_ui.inventory_data.item_id )
+			weapon_slot_ui.set_slot_data(null, SLOT_INDEX_WEAPON)
+			refresh_display()
+		pass
+	elif from_slot == SLOT_INDEX_ARMOR:
+		var result = current_player.request_add_single_item(inventory_type)
+		if result: 
+			current_player.hide_armor( armor_slot_ui.inventory_data.item_id )
+			armor_slot_ui.set_slot_data(null,SLOT_INDEX_ARMOR)
+			refresh_display()
+		pass
+	elif current_player:
 		current_player.request_move_item.rpc_id(1, from_slot, to_slot)
 
 func _on_close_pressed():
@@ -261,7 +278,7 @@ func handle_weapon_equip( from_slot:int, item:Dictionary):
 		var tmp : InventorySlot = InventorySlot.new()
 		tmp.item_id = item.item_id
 		tmp.quantity = 1
-		weapon_slot_ui.set_slot_data(tmp,-1)
+		weapon_slot_ui.set_slot_data(tmp,SLOT_INDEX_WEAPON)
 
 
 func handle_armor_equip( from_slot:int, item:Dictionary):
@@ -278,4 +295,4 @@ func handle_armor_equip( from_slot:int, item:Dictionary):
 		var tmp : InventorySlot = InventorySlot.new()
 		tmp.item_id = item.item_id
 		tmp.quantity = 1
-		armor_slot_ui.set_slot_data(tmp,-1)
+		armor_slot_ui.set_slot_data(tmp,SLOT_INDEX_ARMOR)
