@@ -28,7 +28,10 @@ func start_host(nickname: String, skin_color_str: String):
 	var peer = ENetMultiplayerPeer.new()
 	var error = peer.create_server(SERVER_PORT, MAX_PLAYERS)
 	if error:
-		return error
+		return 	error
+
+	# https://www.youtube.com/watch?v=e0JLO_5UgQo&t=4077s
+	peer.host.compress(ENetConnection.COMPRESS_RANGE_CODER)
 	multiplayer.multiplayer_peer = peer
 
 	if !nickname or nickname.strip_edges() == "":
@@ -49,6 +52,7 @@ func join_game(nickname: String, skin_color_str: String, address: String = SERVE
 	if error:
 		return error
 
+	peer.host.compress(ENetConnection.COMPRESS_RANGE_CODER)
 	multiplayer.multiplayer_peer = peer
 
 	if !nickname or nickname.strip_edges() == "":

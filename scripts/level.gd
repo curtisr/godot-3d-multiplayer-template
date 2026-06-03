@@ -12,6 +12,9 @@ var chat_visible = false
 var inventory_visible = false
 
 func _ready():
+	
+	after_ready()
+	
 	if DisplayServer.get_name() == "headless":
 		print("Dedicated server starting...")
 		Network.start_host("", "")
@@ -39,6 +42,23 @@ func _ready():
 	Network.connect("player_connected", Callable(self, "_on_player_connected"))
 	multiplayer.peer_disconnected.connect(_remove_player)
 	
+func after_ready():
+	# set the ipaddress so someone on lan can easily play
+	# 127.0.0.1 only works in the editor for the server, the client seems to have 
+	# trouble connecting
+	var ip_address :String
+	if OS.has_feature("windows"):
+		if OS.has_environment("COMPUTERNAME"):
+			ip_address =  IP.resolve_hostname(str(OS.get_environment("COMPUTERNAME")),IP.TYPE_IPV4)
+	elif OS.has_feature("x11"):
+		if OS.has_environment("HOSTNAME"):
+			ip_address =  IP.resolve_hostname(str(OS.get_environment("HOSTNAME")),IP.TYPE_IPV4)
+	elif OS.has_feature("OSX"):
+		if OS.has_environment("HOSTNAME"):
+			ip_address =  IP.resolve_hostname(str(OS.get_environment("HOSTNAME")),IP.TYPE_IPV4)
+	get_node("/root/Level/MainMenuUI/MainContainer/MainMenu/Option3/AddressInput").text = ip_address
+
+
 func spawn_loot():
 	if multiplayer.is_server():
 		var lootRoot = get_node("Environment/ItemContainer")
