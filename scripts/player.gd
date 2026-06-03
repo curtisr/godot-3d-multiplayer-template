@@ -400,7 +400,6 @@ func request_remove_item(item_id: String, quantity: int = 1):
 func add_world_item( scene_path:String, player_position:Vector3) -> void:
 	var instance_item = load( scene_path ).instantiate()
 	instance_item.position = player_position
-
 	get_node("/root/Level/Environment/ItemContainer").add_child( instance_item, 1 )
 
 func get_inventory() -> PlayerInventory:
@@ -432,7 +431,8 @@ func pickup():
 			var result = request_add_single_item(item.get("item_id"))
 			if result:
 				print( "item added to inventory")
-				delete_node_on_all.rpc_id( 1, item.get_path() )
+				if item.is_inside_tree():
+					delete_node_on_all.rpc_id( 1, item.get_path() )
 			else:
 				print("unable to add item to inventory")
 
@@ -443,8 +443,8 @@ func delete_node_on_all( node_path: NodePath) -> void:
 	var node = get_node_or_null(node_path)
 	if node:
 		node.queue_free()  # Removes the node and all its children
-	else:
-		push_warning("Node not found: %s" % node_path)
+	#else:
+	#	push_warning("Node not found: %s" % node_path)
 
 
 @rpc("any_peer", "call_local", "reliable")

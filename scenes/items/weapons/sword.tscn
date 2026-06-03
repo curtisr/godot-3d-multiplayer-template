@@ -46,8 +46,9 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_a5m2q")
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_l3uod"]
-size = Vector3(0.10058594, 1.8789063, 0.12371826)
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_i6bru"]
+radius = 0.08154297
+height = 1.9433594
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_l3uod"]
 properties/0/path = NodePath(".:position")
@@ -72,8 +73,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.07382202, -3.226863e-09, 0)
 mesh = SubResource("ArrayMesh_ywr3x")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=823586425]
-transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -0.68391585, 0.121322066, -0.004770279)
-shape = SubResource("BoxShape3D_l3uod")
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -0.65559554, 0.121322066, -0.016206741)
+shape = SubResource("CapsuleShape3D_i6bru")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=93561457]
 replication_config = SubResource("SceneReplicationConfig_l3uod")
