@@ -20,13 +20,16 @@ var player_inventory: PlayerInventory
 @export var yellow_texture : CompressedTexture2D
 @export var green_texture : CompressedTexture2D
 @export var red_texture : CompressedTexture2D
-@export var player_health : int = 10
-@export var player_hurt : int = 0
 
 @onready var _bottom_mesh: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Bottom")
 @onready var _chest_mesh: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Chest")
 @onready var _face_mesh: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Face")
 @onready var _limbs_head_mesh: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Llimbs and head")
+
+@export_category("Character Info")
+@export var player_health : int = 10
+var player_hurt : int = 0
+
 
 var _current_speed: float
 var _respawn_point = Vector3(0, 5, 0)
@@ -197,10 +200,14 @@ func change_nick(new_nick: String):
 
 func get_texture_from_name(skin_color: SkinColor) -> CompressedTexture2D:
 	match skin_color:
-		SkinColor.BLUE: return blue_texture
-		SkinColor.GREEN: return green_texture
-		SkinColor.RED: return red_texture
-		SkinColor.YELLOW: return yellow_texture
+		SkinColor.BLUE:
+			return blue_texture
+		SkinColor.GREEN:
+			return green_texture
+		SkinColor.RED:
+			return red_texture
+		SkinColor.YELLOW:
+			return yellow_texture
 		_: return blue_texture
 
 @rpc("any_peer", "reliable")
