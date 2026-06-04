@@ -140,7 +140,6 @@ bind/24/bone = -1
 bind/24/pose = Transform3D(-1.7285082, -3.7497166e-06, -5.0536016e-07, -0.00027160736, -0.23088583, 1.7131019, -1.2863285e-05, 1.7132021, 0.23089302, -0.28799617, -0.22982818, -0.16980062)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bkbtv"]
-albedo_texture = ExtResource("1_w11jc")
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_umv1c"]
 resource_name = "3DGodotRobot_Cube_004"
@@ -163,7 +162,6 @@ _surfaces = [{
 blend_shape_mode = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hbshb"]
-albedo_texture = ExtResource("1_w11jc")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_uisdr"]
 resource_name = "Material.002"
@@ -206,7 +204,6 @@ _surfaces = [{
 blend_shape_mode = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a6urh"]
-albedo_texture = ExtResource("1_w11jc")
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_5t6nn"]
 resource_name = "3DGodotRobot_Cube"
@@ -229,7 +226,6 @@ _surfaces = [{
 blend_shape_mode = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xgf8p"]
-albedo_texture = ExtResource("1_w11jc")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_unhsd"]
 resource_name = "Material.003"
@@ -4953,7 +4949,7 @@ properties/1/spawn = true
 properties/1/replication_mode = 1
 properties/2/path = NodePath("PlayerNick/Nickname:text")
 properties/2/spawn = true
-properties/2/replication_mode = 2
+properties/2/replication_mode = 1
 properties/3/path = NodePath("3DGodotRobot:rotation")
 properties/3/spawn = true
 properties/3/replication_mode = 1

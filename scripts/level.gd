@@ -122,13 +122,15 @@ func _add_player(id: int, player_info : Dictionary):
 	var player = player_scene.instantiate()
 	player.name = str(id)
 	player.position = get_spawn_point()
+	var skin_enum = player_info["skin"]
+	player.skin_color = skin_enum
 	players_container.add_child(player, true)
 
 	var nick = Network.players[id]["nick"]
 	player.nickname.text = nick
 
-	var skin_enum = player_info["skin"]
-	player.set_player_skin(skin_enum)
+	
+	#player.set_player_skin(skin_enum)
 
 func get_spawn_point() -> Vector3:
 	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius

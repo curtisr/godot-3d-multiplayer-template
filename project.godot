@@ -31,6 +31,10 @@ ItemDatabase="*res://scripts/item_database.gd"
 window/size/viewport_width=1280
 window/size/viewport_height=720
 
+[editor]
+
+movie_writer/movie_file="C:/Users/curti/Documents/fix_up/godot-3d-multiplayer-template/output.avi"
+
 [global_group]
 
 Players="A group containing all of the player nodes"

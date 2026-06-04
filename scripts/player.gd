@@ -8,6 +8,7 @@ const JUMP_VELOCITY = 10
 enum SkinColor { BLUE, YELLOW, GREEN, RED }
 
 @onready var nickname: Label3D = $PlayerNick/Nickname
+@export var skin_color  : SkinColor = SkinColor.BLUE
 
 var player_inventory: PlayerInventory
 
@@ -60,6 +61,9 @@ func _ready():
 	else:
 		if get_multiplayer_authority() == local_client_id:
 			request_inventory_sync.rpc_id(1)
+		
+	set_player_skin( skin_color )
+	
 
 func _physics_process(delta):
 	var is_idle = true
@@ -210,7 +214,7 @@ func get_texture_from_name(skin_color: SkinColor) -> CompressedTexture2D:
 			return yellow_texture
 		_: return blue_texture
 
-@rpc("any_peer", "reliable")
+# @rpc("any_peer", "reliable")
 func set_player_skin(skin_name: SkinColor) -> void:
 	var texture = get_texture_from_name(skin_name)
 
@@ -221,11 +225,9 @@ func set_player_skin(skin_name: SkinColor) -> void:
 
 func set_mesh_texture(mesh_instance: MeshInstance3D, texture: CompressedTexture2D) -> void:
 	if mesh_instance:
-		var material := mesh_instance.get_surface_override_material(0)
-		if material and material is StandardMaterial3D:
-			var new_material := material
-			new_material.albedo_texture = texture
-			mesh_instance.set_surface_override_material(0, new_material)
+		var new_material := StandardMaterial3D.new()
+		new_material.albedo_texture = texture
+		mesh_instance.set_surface_override_material(0, new_material)
 
 # Inventory Network Functions - Server authoritative, client-specific
 @rpc("any_peer", "call_local", "reliable")
