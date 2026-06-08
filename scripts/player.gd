@@ -3,7 +3,8 @@ class_name Character
 
 const NORMAL_SPEED = 6.0
 const SPRINT_SPEED = 10.0
-const JUMP_VELOCITY = 10
+const JUMP_VELOCITY = 7.5
+const FALL_GRAVITY_MULTIPLIER = 1.6
 
 enum SkinColor { BLUE, YELLOW, GREEN, RED }
 
@@ -47,8 +48,6 @@ func _ready():
 	var is_local_player = is_multiplayer_authority()
 	var local_client_id = multiplayer.get_unique_id()
 
-	print("Debug: Player ", name, " ready - authority: ", get_multiplayer_authority(), ", local client: ", local_client_id, ", is_local: ", is_local_player)
-
 	if is_local_player:
 		player_inventory = PlayerInventory.new()
 		_add_starting_items()
@@ -73,17 +72,17 @@ func _physics_process(delta):
 	if not is_multiplayer_authority(): return
 
 	var current_scene = get_tree().get_current_scene()
-	if current_scene and is_on_floor():
-		var should_freeze = false
+	var should_freeze = false
+	if current_scene:
 		if current_scene.has_method("is_chat_visible") and current_scene.is_chat_visible():
 			should_freeze = true
 		elif current_scene.has_method("is_inventory_visible") and current_scene.is_inventory_visible():
 			should_freeze = true
 
-		if should_freeze:
-			freeze()
-			return
-	
+	if should_freeze:
+		freeze()
+		return
+
 	if player_hurt > 0 || get_node("3DGodotRobot/AnimationPlayer").current_animation == "Hurt": 
 		# invicible while hurt
 		if get_node("3DGodotRobot/AnimationPlayer").current_animation != "Hurt":
@@ -120,7 +119,8 @@ func _physics_process(delta):
 			if is_idle:
 				_body.play_jump_animation("Jump")
 	else:
-		velocity.y -= gravity * delta
+		var gravity_multiplier = FALL_GRAVITY_MULTIPLIER if velocity.y < 0 else 1.0
+		velocity.y -= gravity * gravity_multiplier * delta
 
 		if can_double_jump and not has_double_jumped and Input.is_action_just_pressed("jump"):
 			velocity.y = JUMP_VELOCITY
@@ -128,8 +128,6 @@ func _physics_process(delta):
 			can_double_jump = false
 			if is_idle:
 				_body.play_jump_animation("Jump2")
-
-	velocity.y -= gravity * delta
 
 	_move()
 	var collided = move_and_slide()
@@ -232,8 +230,6 @@ func set_mesh_texture(mesh_instance: MeshInstance3D, texture: CompressedTexture2
 # Inventory Network Functions - Server authoritative, client-specific
 @rpc("any_peer", "call_local", "reliable")
 func request_inventory_sync():
-	print("Debug: request_inventory_sync called on player ", name, " (authority: ", get_multiplayer_authority(), ") by client ", multiplayer.get_remote_sender_id())
-
 	if not multiplayer.is_server():
 		return
 
@@ -243,13 +239,12 @@ func request_inventory_sync():
 		return
 
 	if player_inventory:
-		sync_inventory_to_owner.rpc_id(requesting_client, player_inventory.to_dict())
+		_sync_inventory_to_owner()
 
 @rpc("any_peer", "call_local", "reliable")
 func sync_inventory_to_owner(inventory_data: Dictionary):
-	print("Debug: sync_inventory_to_owner called on player ", name, " (authority: ", get_multiplayer_authority(), ") - local unique id: ", multiplayer.get_unique_id(), " from: ", multiplayer.get_remote_sender_id())
-
-	if multiplayer.get_remote_sender_id() != 1:
+	var sender_id = multiplayer.get_remote_sender_id()
+	if sender_id != 1 and not (sender_id == 0 and multiplayer.is_server()):
 		return
 
 	if not is_multiplayer_authority():
@@ -262,21 +257,15 @@ func sync_inventory_to_owner(inventory_data: Dictionary):
 	var level_scene = get_tree().get_current_scene()
 	if level_scene:
 		if is_multiplayer_authority() or get_multiplayer_authority() == multiplayer.get_unique_id():
-			print("Debug: This is the local player, updating UI")
 			if level_scene.has_method("update_local_inventory_display"):
 				level_scene.update_local_inventory_display()
 			if level_scene.has_node("InventoryUI"):
 				var inventory_ui = level_scene.get_node("InventoryUI")
 				if inventory_ui.visible and inventory_ui.has_method("refresh_display"):
-					print("Debug: Calling refresh_display directly on InventoryUI")
 					inventory_ui.refresh_display()
-		else:
-			print("Debug: Not the local player, skipping UI update")
 
 @rpc("any_peer", "call_local", "reliable")
 func request_move_item(from_slot: int, to_slot: int, quantity: int = -1):
-	print("Debug: request_move_item called - from:", from_slot, " to:", to_slot, " on player ", name, " (authority: ", get_multiplayer_authority(), ") by client ", multiplayer.get_remote_sender_id())
-
 	if not multiplayer.is_server():
 		return
 
@@ -297,34 +286,20 @@ func request_move_item(from_slot: int, to_slot: int, quantity: int = -1):
 		success = player_inventory.move_item(from_slot, to_slot)
 		if not success:
 			success = player_inventory.swap_items(from_slot, to_slot)
-			print("Debug: Swapped items between slots ", from_slot, " and ", to_slot)
-		else:
-			print("Debug: Moved item from slot ", from_slot, " to ", to_slot)
 	else:
 		success = player_inventory.move_item(from_slot, to_slot, quantity)
-		print("Debug: Moved ", quantity, " items from slot ", from_slot, " to ", to_slot)
 
 	if success:
-		print("Debug: Move successful, syncing inventory to owner ", get_multiplayer_authority())
-		var owner_id = get_multiplayer_authority()
-		if owner_id != 1:
-			sync_inventory_to_owner.rpc_id(owner_id, player_inventory.to_dict())
-		else:
-			var level_scene = get_tree().get_current_scene()
-			if level_scene and level_scene.has_method("update_local_inventory_display"):
-				level_scene.update_local_inventory_display()
-	else:
-		print("Debug: Move/swap failed")
+		_sync_inventory_to_owner()
 
 @rpc("any_peer", "call_local", "reliable")
 func request_add_item(item_id: String, quantity: int = 1):
-	print("Debug: request_add_item called on player ", name, " (authority: ", get_multiplayer_authority(), ") by client ", multiplayer.get_remote_sender_id())
-
 	if not multiplayer.is_server():
 		return
 
 	var requesting_client = multiplayer.get_remote_sender_id()
-	if requesting_client != get_multiplayer_authority() and requesting_client != 1:
+	var is_local_server_call = requesting_client == 0 and multiplayer.get_unique_id() == 1
+	if requesting_client != 1 and not is_local_server_call:
 		push_warning("Client " + str(requesting_client) + " tried to add items to player " + str(get_multiplayer_authority()))
 		return
 
@@ -342,25 +317,18 @@ func request_add_item(item_id: String, quantity: int = 1):
 
 	var remaining = player_inventory.add_item(item, quantity)
 	var added = quantity - remaining
-	print("Debug: Added ", added, " ", item_id, " to inventory (", remaining, " remaining)")
 
 	if added > 0:
-		var owner_id = get_multiplayer_authority()
-		print("Debug: Syncing inventory to owner ", owner_id)
-		if owner_id != 1:
-			sync_inventory_to_owner.rpc_id(owner_id, player_inventory.to_dict())
-		else:
-			var level_scene = get_tree().get_current_scene()
-			if level_scene and level_scene.has_method("update_local_inventory_display"):
-				level_scene.update_local_inventory_display()
+		_sync_inventory_to_owner()
 
 @rpc("any_peer", "call_local", "reliable")
 func request_add_single_item(item_id: String) -> bool:
-	print("Debug: request_add_item called on player ", name, " (authority: ", get_multiplayer_authority(), ") by client ", multiplayer.get_remote_sender_id())
+	if not multiplayer.is_server():
+		return false
 
 	if player_inventory == null:
 		return false
-	
+
 	var item = ItemDatabase.get_item(item_id)
 	if not item:
 		push_warning("Item not found: " + item_id)
@@ -369,22 +337,13 @@ func request_add_single_item(item_id: String) -> bool:
 	var remaining = player_inventory.add_item(item, 1)
 
 	if remaining == 0:
-		var owner_id = get_multiplayer_authority()
-		if owner_id != 1:
-			sync_inventory_to_owner.rpc_id(owner_id, player_inventory.to_dict())
-		else:
-			var level_scene = get_tree().get_current_scene()
-			if level_scene and level_scene.has_method("update_local_inventory_display"):
-				level_scene.update_local_inventory_display()
+		_sync_inventory_to_owner()
 		return true
-	else:
-		return false
+	return false
 
 
 @rpc("any_peer", "call_local", "reliable")
 func request_remove_item(item_id: String, quantity: int = 1):
-	print("Debug: request_remove_item called on player ", name, " (authority: ", get_multiplayer_authority(), ") by client ", multiplayer.get_remote_sender_id())
-
 	if not multiplayer.is_server():
 		return
 
@@ -403,18 +362,29 @@ func request_remove_item(item_id: String, quantity: int = 1):
 	var removed = player_inventory.remove_item(item_id, quantity)
 
 	if removed > 0:
-		var owner_id = get_multiplayer_authority()
-		if owner_id != 1:
-			sync_inventory_to_owner.rpc_id(owner_id, player_inventory.to_dict())
+		_sync_inventory_to_owner()
 
 @rpc("authority", "call_local", "reliable")
 func add_world_item( scene_path:String, player_position:Vector3) -> void:
-	var instance_item = load( scene_path ).instantiate()
+	var item_container = get_node_or_null("/root/Level/Environment/ItemContainer")
+	if not item_container:
+		push_warning("ItemContainer not found at /root/Level/Environment/ItemContainer")
+		return
+	var instance_item = load(scene_path).instantiate()
 	instance_item.position = player_position
-	get_node("/root/Level/Environment/ItemContainer").add_child( instance_item, 1 )
+	item_container.add_child(instance_item, true)
 
 func get_inventory() -> PlayerInventory:
 	return player_inventory
+
+func _sync_inventory_to_owner() -> void:
+	if not multiplayer.is_server() or not player_inventory:
+		return
+	var owner_id = get_multiplayer_authority()
+	if owner_id == 1:
+		sync_inventory_to_owner(player_inventory.to_dict())
+	else:
+		sync_inventory_to_owner.rpc_id(owner_id, player_inventory.to_dict())
 
 func _add_starting_items():
 	if not player_inventory:
@@ -493,17 +463,26 @@ func hurt( damage : int ):
 
 # enable the weapon or disabled based on the attack animation
 func weapon_disabled():
-	# godot("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/iron_sword").
-	get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/HurtArea").monitoring = false
-	get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/iron_pickaxe/HurtArea").monitoring = false
-	get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/iron_sword/HurtArea").monitoring = false
-	pass
-	
+	var hurt_area = get_node_or_null("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/HurtArea")
+	if hurt_area:
+		hurt_area.monitoring = false
+	var pickaxe_area = get_node_or_null("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/iron_pickaxe/HurtArea")
+	if pickaxe_area:
+		pickaxe_area.monitoring = false
+	var sword_area = get_node_or_null("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/iron_sword/HurtArea")
+	if sword_area:
+		sword_area.monitoring = false
+
 func weapon_enabled():
-	if !is_multiplayer_authority():
+	if not is_multiplayer_authority():
 		return
-	get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/HurtArea").monitoring = true	
-	get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/iron_pickaxe/HurtArea").monitoring = true
-	get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/iron_sword/HurtArea").monitoring = true
-	pass
+	var hurt_area = get_node_or_null("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/HurtArea")
+	if hurt_area:
+		hurt_area.monitoring = true
+	var pickaxe_area = get_node_or_null("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/iron_pickaxe/HurtArea")
+	if pickaxe_area:
+		pickaxe_area.monitoring = true
+	var sword_area = get_node_or_null("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/iron_sword/HurtArea")
+	if sword_area:
+		sword_area.monitoring = true
 	

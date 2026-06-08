@@ -49,6 +49,9 @@ func remove_item(item_id: String, quantity: int = 1) -> int:
 	return removed
 
 func move_item(from_index: int, to_index: int, quantity: int = -1) -> bool:
+	if from_index == to_index:
+		return false
+
 	var from_slot = get_slot(from_index)
 	var to_slot = get_slot(to_index)
 
@@ -157,7 +160,7 @@ func get_free_space_for_item(item: Item) -> int:
 	# Count empty slots
 	for slot in slots:
 		if slot.is_empty():
-			free_space += item.max_stack
+			free_space += item.max_stack if item.stackable else 1
 
 	return free_space
 
@@ -194,3 +197,5 @@ func from_dict(data: Dictionary) -> void:
 	var slots_data = data.get("slots", [])
 	for i in range(min(slots_data.size(), slots.size())):
 		slots[i].from_dict(slots_data[i])
+	for i in range(slots_data.size(), slots.size()):
+		slots[i].clear()
