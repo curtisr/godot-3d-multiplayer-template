@@ -5,6 +5,8 @@ const NORMAL_SPEED = 6.0
 const SPRINT_SPEED = 10.0
 const JUMP_VELOCITY = 7.5
 const FALL_GRAVITY_MULTIPLIER = 1.6
+const MAX_HEALTH := 10
+const MAX_DAMAGE_PER_HIT := 10
 
 enum SkinColor { BLUE, YELLOW, GREEN, RED }
 
@@ -30,7 +32,6 @@ var player_inventory: PlayerInventory
 
 @export_category("Character Info")
 @export var player_health : int = 10
-var player_hurt : int = 0
 
 
 var _current_speed: float
@@ -46,27 +47,29 @@ func _enter_tree():
 
 func _ready():
 	var is_local_player = is_multiplayer_authority()
-	var local_client_id = multiplayer.get_unique_id()
+
+	if multiplayer.is_server():
+		player_inventory = PlayerInventory.new()
+		_add_starting_items()
+		if not is_local_player:
+			call_deferred("_sync_inventory_to_owner")
 
 	if is_local_player:
-		player_inventory = PlayerInventory.new()
-		_add_starting_items()
-		
 		var level_scene = get_tree().get_current_scene()
-		level_scene.get_node("HealthBar").visible = true
-	elif multiplayer.is_server():
-		player_inventory = PlayerInventory.new()
-		_add_starting_items()
-	else:
-		if get_multiplayer_authority() == local_client_id:
+		var health_bar = level_scene.get_node_or_null("HealthBar")
+		if health_bar:
+			health_bar.visible = true
+			health_bar.set_bar(player_health)
+		if not multiplayer.is_server():
 			request_inventory_sync.rpc_id(1)
-		
-	set_player_skin( skin_color )
-	
+
+	set_player_skin(skin_color)
+
+
 
 func _physics_process(delta):
-	var is_idle = true
 	if player_health <= 0:
+		_body.animate(Vector3.ZERO)
 		return
 	if not multiplayer.has_multiplayer_peer(): return
 	if not is_multiplayer_authority(): return
@@ -83,28 +86,12 @@ func _physics_process(delta):
 		freeze()
 		return
 
-	if player_hurt > 0 || get_node("3DGodotRobot/AnimationPlayer").current_animation == "Hurt": 
-		# invicible while hurt
-		if get_node("3DGodotRobot/AnimationPlayer").current_animation != "Hurt":
-			player_health -= player_hurt
-		player_hurt = 0
-		_body.play_hurt()
-		if !current_scene:
-			current_scene = get_tree().get_current_scene()
-		current_scene.health_bar.set_bar(player_health)
-		if player_health == 0:
-			#get_node("3DGodotRobot/AnimationPlayer").play("Dive")
-			#rotation.x = 90
-			#get_node("CollisionShape3D").disabled = true
-			#we are dead!
-			pass
-		return
-			
-			
 	if Input.is_action_just_pressed("pickup") || get_node("3DGodotRobot/AnimationPlayer").current_animation == "Emote2" :
 		_body.play_pickup()
 		return
 		
+	var is_idle = true
+
 	if Input.is_action_just_pressed("attack") || get_node("3DGodotRobot/AnimationPlayer").current_animation == "Attack1":
 		_body.play_attack_animation()
 		is_idle = false
@@ -212,7 +199,6 @@ func get_texture_from_name(skin_color: SkinColor) -> CompressedTexture2D:
 			return yellow_texture
 		_: return blue_texture
 
-# @rpc("any_peer", "reliable")
 func set_player_skin(skin_name: SkinColor) -> void:
 	var texture = get_texture_from_name(skin_name)
 
@@ -404,7 +390,6 @@ func _add_starting_items():
 	if armor:
 		player_inventory.add_item(armor, 1)
 
-# client calls this
 func pickup():
 	var array_of_items = get_node("3DGodotRobot/InfrontArea3D").get_overlapping_bodies()
 	for item in array_of_items:
@@ -418,24 +403,20 @@ func pickup():
 				print("unable to add item to inventory")
 
 
-# This function will be called only on the server/host
 @rpc("authority", "call_local", "reliable")
-func delete_node_on_all( node_path: NodePath) -> void:
+func delete_node_on_all(node_path: NodePath) -> void:
 	var node = get_node_or_null(node_path)
 	if node:
-		node.queue_free()  # Removes the node and all its children
-	#else:
-	#	push_warning("Node not found: %s" % node_path)
+		node.queue_free()
 
 
 @rpc("any_peer", "call_local", "reliable")
-func applyForceToServerObject( nameOfObject : String, normal : Vector3  ):
-	# originally get_tree().get_nodes_in_group("objects")
-	var object_node = get_node("/root/Level/Environment/ItemContainer")
-	if object_node != null:
+func applyForceToServerObject(nameOfObject: String, normal: Vector3):
+	var object_node = get_node_or_null("/root/Level/Environment/ItemContainer")
+	if object_node:
 		for n in object_node.get_children():
 			if n.name == nameOfObject:
-				n.apply_force( normal * 100)
+				n.apply_force(normal * 100)
 
 func hide_armor( armor_name : String ):
 	var node3d = get_node("3DGodotRobot/RobotArmature/Skeleton3D/HeadAttach/"+armor_name) as Node3D
@@ -445,21 +426,47 @@ func equip_armor( armor_name : String ):
 	var node3d = get_node("3DGodotRobot/RobotArmature/Skeleton3D/HeadAttach/"+armor_name) as Node3D
 	node3d.visible = true
 
-func equip_weapon( weapon_name : String ):
-	var node3d = get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/"+weapon_name) as Node3D
-	node3d.visible = true
-	pass
+func equip_weapon(weapon_name: String):
+	get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/" + weapon_name).visible = true
 
-func hide_weapon( weapon_name : String ):
-	var node3d = get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/"+weapon_name) as Node3D
-	node3d.visible = false
-	pass
+func hide_weapon(weapon_name: String):
+	get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/" + weapon_name).visible = false
 
+
+@rpc("any_peer", "reliable")
+func server_apply_damage(target_path: NodePath, damage: int):
+	if not multiplayer.is_server():
+		return
+	var sender = multiplayer.get_remote_sender_id()
+	var is_local_call = sender == 0 and multiplayer.is_server()
+	if not is_local_call and sender != get_multiplayer_authority():
+		push_warning("server_apply_damage: unauthorized sender " + str(sender))
+		return
+	var safe_damage = clampi(damage, 1, MAX_DAMAGE_PER_HIT)
+	var target = get_node_or_null(target_path)
+	if not target or not (target is Character):
+		return
+	target.player_health = clampi(target.player_health - safe_damage, 0, MAX_HEALTH)
+	target.sync_health.rpc(target.player_health)
+	target.sync_health(target.player_health)
 
 @rpc("any_peer", "call_local", "reliable")
-func hurt( damage : int ):
-	if damage > 0:
-		player_hurt = damage
+func sync_health(new_health: int):
+	var sender_id = multiplayer.get_remote_sender_id()
+	if sender_id != 1 and not (sender_id == 0 and multiplayer.is_server()):
+		return
+	var old_health = player_health
+	player_health = clampi(new_health, 0, MAX_HEALTH)
+	if is_multiplayer_authority():
+		var level_scene = get_tree().get_current_scene()
+		if level_scene and level_scene.has_node("HealthBar"):
+			level_scene.get_node("HealthBar").set_bar(player_health)
+	if player_health < old_health:
+		_body.play_hurt()
+
+@rpc("authority", "reliable")
+func hurt(_damage: int):
+	pass
 
 # enable the weapon or disabled based on the attack animation
 func weapon_disabled():

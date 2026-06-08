@@ -1,7 +1,8 @@
 extends Area3D
 
 func _on_body_entered(body: Node3D) -> void:
-	var player = Network.getPlayer()
-	if body is Character and body != player:
-		body.hurt.rpc( 3 )
-	pass # Replace with function body.
+	var local_player = Network.getPlayer()
+	if not local_player or not local_player.is_multiplayer_authority():
+		return
+	if body is Character and body != local_player:
+		local_player.server_apply_damage.rpc_id(1, body.get_path(), 3)
