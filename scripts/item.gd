@@ -19,8 +19,7 @@ extends Resource
 @export var context_options: Array[Item.ContextOptions] = []
 @export var context_callable: Dictionary
 
-# default scene to use
-@export var scene_path: String = "res://scenes/items/apple.tscn" 
+@export var scene_path: String = ""
 
 enum Blessed { 
 	CURSED,
@@ -81,7 +80,7 @@ func from_dict(data: Dictionary) -> void:
 	value = data.get("value", 0)
 	context_options = data.get("context_options", [ContextOptions.EXAMINE,ContextOptions.DROP])
 	context_callable = data.get("context_callable", {ContextOptions.EXAMINE:examine, ContextOptions.DROP:drop})
-	scene_path = data.get("scene_path", "res://scenes/items/apple.tscn")
+	scene_path = data.get("scene_path", "")
 	
  
 func can_stack_with(other_item: Item) -> bool:

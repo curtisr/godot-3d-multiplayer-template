@@ -130,7 +130,10 @@ func _on_item_selected(index: int):
 	elif index == Item.ContextOptions.EXAMINE:
 		current_item.context_callable[Item.ContextOptions.EXAMINE].call()
 	elif index == Item.ContextOptions.EAT:
-		current_item.context_callable[Item.ContextOptions.EAT].call()
+		var result = current_item.context_callable[Item.ContextOptions.EAT].call()
+		if result:
+			current_player.request_remove_item.rpc_id( 1,  current_item.id, 1 )
+			refresh_display()
 	elif index == Item.ContextOptions.EQUIP:
 		current_item.context_callable[Item.ContextOptions.EQUIP].call()
 	elif index == Item.ContextOptions.THROW:
@@ -139,6 +142,9 @@ func _on_item_selected(index: int):
 		current_item.context_callable[Item.ContextOptions.READ].call()
 	elif index == Item.ContextOptions.DROP:
 		print( "attempting to drop item " )
+		if current_item.scene_path.is_empty() or not ResourceLoader.exists(current_item.scene_path):
+			push_warning("Cannot drop item '" + current_item.id + "': invalid scene path '" + current_item.scene_path + "'")
+			return
 		current_player.add_world_item.rpc_id( 1, current_item.scene_path,  current_player.get_node("3DGodotRobot/InfrontArea3D").global_position )
 		current_player.request_remove_item.rpc_id( 1,  current_item.id, 1 )
 		refresh_display()

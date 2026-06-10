@@ -36,6 +36,7 @@ var player_inventory: PlayerInventory
 
 var _current_speed: float
 var _respawn_point = Vector3(0, 5, 0)
+var is_dead: bool = false
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 var can_double_jump = true
@@ -60,8 +61,6 @@ func _ready():
 		if health_bar:
 			health_bar.visible = true
 			health_bar.set_bar(player_health)
-		if not multiplayer.is_server():
-			request_inventory_sync.rpc_id(1)
 
 	set_player_skin(skin_color)
 
@@ -69,7 +68,11 @@ func _ready():
 
 func _physics_process(delta):
 	if player_health <= 0:
-		_body.animate(Vector3.ZERO)
+		if not is_dead:
+			is_dead = true
+			_body.play_death()
+			if multiplayer.is_server():
+				_start_respawn_timer()
 		return
 	if not multiplayer.has_multiplayer_peer(): return
 	if not is_multiplayer_authority(): return
@@ -182,13 +185,35 @@ func _respawn():
 	global_transform.origin = _respawn_point
 	velocity = Vector3.ZERO
 
+func _start_respawn_timer() -> void:
+	var timer = get_tree().create_timer(5.0)
+	timer.timeout.connect(_server_respawn)
+
+func _server_respawn() -> void:
+	if not multiplayer.is_server():
+		return
+	player_health = MAX_HEALTH
+	sync_health.rpc(player_health)
+	sync_health(player_health)
+	respawn_player.rpc()
+	respawn_player()
+
+@rpc("any_peer", "call_local", "reliable")
+func respawn_player() -> void:
+	var sender_id = multiplayer.get_remote_sender_id()
+	if sender_id != 1 and not (sender_id == 0 and multiplayer.is_server()):
+		return
+	global_transform.origin = _respawn_point
+	velocity = Vector3.ZERO
+	is_dead = false
+
 @rpc("any_peer", "reliable")
 func change_nick(new_nick: String):
 	if nickname:
 		nickname.text = new_nick
 
-func get_texture_from_name(skin_color: SkinColor) -> CompressedTexture2D:
-	match skin_color:
+func get_texture_from_name(color: SkinColor) -> CompressedTexture2D:
+	match color:
 		SkinColor.BLUE:
 			return blue_texture
 		SkinColor.GREEN:
@@ -356,7 +381,14 @@ func add_world_item( scene_path:String, player_position:Vector3) -> void:
 	if not item_container:
 		push_warning("ItemContainer not found at /root/Level/Environment/ItemContainer")
 		return
-	var instance_item = load(scene_path).instantiate()
+	if scene_path.is_empty() or not ResourceLoader.exists(scene_path):
+		push_warning("Cannot add world item: invalid scene path '" + scene_path + "'")
+		return
+	var packed_scene = load(scene_path) as PackedScene
+	if not packed_scene:
+		push_warning("Cannot add world item: scene path is not a PackedScene '" + scene_path + "'")
+		return
+	var instance_item = packed_scene.instantiate()
 	instance_item.position = player_position
 	item_container.add_child(instance_item, true)
 
@@ -433,7 +465,7 @@ func hide_weapon(weapon_name: String):
 	get_node("3DGodotRobot/RobotArmature/Skeleton3D/LeftHandAttach/" + weapon_name).visible = false
 
 
-@rpc("any_peer", "reliable")
+@rpc("any_peer", "call_local", "reliable")
 func server_apply_damage(target_path: NodePath, damage: int):
 	if not multiplayer.is_server():
 		return
@@ -461,12 +493,8 @@ func sync_health(new_health: int):
 		var level_scene = get_tree().get_current_scene()
 		if level_scene and level_scene.has_node("HealthBar"):
 			level_scene.get_node("HealthBar").set_bar(player_health)
-	if player_health < old_health:
+	if player_health < old_health and player_health > 0:
 		_body.play_hurt()
-
-@rpc("authority", "reliable")
-func hurt(_damage: int):
-	pass
 
 # enable the weapon or disabled based on the attack animation
 func weapon_disabled():

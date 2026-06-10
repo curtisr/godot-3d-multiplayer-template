@@ -98,12 +98,30 @@ func _create_sample_items():
 	pickaxe.stackable = false
 	pickaxe.value = 100
 	pickaxe.icon = placeholder_icon
-	pickaxe.scene_path = "res://scenes/items/food/apple.tscn"
+	pickaxe.scene_path = "res://scenes/items/weapons/pickaxe.tscn"
 	pickaxe.set_context_options([Item.ContextOptions.THROW,Item.ContextOptions.EQUIP,Item.ContextOptions.DROP])
 	pickaxe.set_context_callable({Item.ContextOptions.THROW:Item.throw,
 								Item.ContextOptions.EQUIP:Item.equip,
 								Item.ContextOptions.DROP:Item.static_drop})	
 	items[pickaxe.id] = pickaxe
+
+	# Apple food
+	var apple = Item.new()
+	apple.id = "apple"
+	apple.name = "Apple"
+	apple.description = "A fresh apple. Restores a little energy."
+	apple.item_type = Item.ItemType.CONSUMABLE
+	apple.rarity = Item.ItemRarity.COMMON
+	apple.stackable = true
+	apple.max_stack = 10
+	apple.value = 5
+	apple.icon = placeholder_icon
+	apple.scene_path = "res://scenes/items/food/apple.tscn"
+	apple.set_context_options([Item.ContextOptions.EAT,Item.ContextOptions.THROW,Item.ContextOptions.DROP])
+	apple.set_context_callable({Item.ContextOptions.EAT:AppleRigidBody3D.eat,
+								Item.ContextOptions.THROW:Item.throw,
+								Item.ContextOptions.DROP:Item.static_drop})
+	items[apple.id] = apple
 
 func add_item_to_database(item: Item) -> bool:
 	if item.id.is_empty():

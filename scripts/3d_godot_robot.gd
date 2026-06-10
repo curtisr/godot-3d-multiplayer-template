@@ -46,3 +46,12 @@ func play_jump_animation(jump_type: String = "Jump") -> void:
 func play_attack_animation() -> void:
 	if animation_player:
 		animation_player.play("Attack1")
+
+func play_death() -> void:
+	if not animation_player:
+		return
+	animation_player.play("Hurt")
+	animation_player.animation_finished.connect(
+		func(_name): animation_player.pause(),
+		CONNECT_ONE_SHOT
+	)

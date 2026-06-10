@@ -29,9 +29,6 @@ unique_name_in_owner = true
 _spawnable_scenes = PackedStringArray("uid://bwudvnrsyts07", "uid://cqi5eaqaobb3e", "uid://bpcrivjdy82nk", "uid://ba8ffkgetdio6", "uid://b3r8ojefaspnv", "uid://dixt7j41ak3ft")
 spawn_path = NodePath("../Environment/ItemContainer")
 
-[node name="MonsterMultiplayerSpawner" type="MultiplayerSpawner" parent="." unique_id=960498580]
-spawn_path = NodePath("../Environment/MonsterContainer")
-
 [node name="Environment" type="Node3D" parent="." unique_id=523076069]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2542782, 0)
@@ -70,8 +67,6 @@ shadow_enabled = true
 shadow_blur = 0.5
 
 [node name="ItemContainer" type="Node3D" parent="Environment" unique_id=1445003613]
-
-[node name="MonsterContainer" type="Node3D" parent="Environment" unique_id=392828310]
 
 [node name="PlayersContainer" type="Node3D" parent="." unique_id=1732952398 groups=["Players"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6891646, 0)

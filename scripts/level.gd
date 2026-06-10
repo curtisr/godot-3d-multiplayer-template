@@ -261,7 +261,7 @@ func _debug_add_item():
 		return
 	var local_player = _get_local_player()
 	if local_player:
-		var test_items = ["iron_sword", "health_potion", "leather_armor", "magic_gem", "iron_pickaxe"]
+		var test_items = ["iron_sword", "health_potion", "leather_armor", "magic_gem", "iron_pickaxe", "apple"]
 		var random_item = test_items[randi() % test_items.size()]
 		local_player.request_add_item.rpc_id(1, random_item, 1)
 
