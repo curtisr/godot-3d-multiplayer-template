@@ -15,7 +15,6 @@ extends Resource
 @export var item_type: ItemType = ItemType.MISC
 @export var rarity: ItemRarity = ItemRarity.COMMON
 @export var value: int = 0
-# default context menu option is drop
 @export var context_options: Array[Item.ContextOptions] = []
 @export var context_callable: Dictionary
 
@@ -50,6 +49,7 @@ enum ContextOptions {
 	THROW,
 	READ,
 	EXAMINE,
+	UNEQUIP,
 }
 
 func to_dict() -> Dictionary:
@@ -87,27 +87,25 @@ func can_stack_with(other_item: Item) -> bool:
 	return stackable && other_item.stackable && id == other_item.id
 
 static func examine():
-	print("you examine in the object - add this text to the chat.")
+	pass
 	
 static func drop():
-	# see inventory_ui for standard drop method
 	pass
 
 static func equip():
-	print( "default equip" )
+	pass
 
 static func throw():
-	print( "default throw")
+	pass
 
 static func read():
-	print("default read called")
+	pass
 	
 static func drink() -> bool:
-	print("default drink called")
-	return true
+	return false
 	
 static func static_drop():
-	print("nothing to see here")
+	pass
 		
 func set_context_options( val : Array[Item.ContextOptions]):
 	context_options = val

@@ -91,14 +91,11 @@ theme_override_fonts/font = ExtResource("1_font")
 theme_override_font_sizes/font_size = 35
 text = "Player Skin : "
 
-[node name="SkinInput" type="LineEdit" parent="MainContainer/MainMenu/Option2" unique_id=2039868006]
+[node name="SkinInput" type="OptionButton" parent="MainContainer/MainMenu/Option2" unique_id=2039868006]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_fonts/font = ExtResource("1_font")
 theme_override_font_sizes/font_size = 35
-placeholder_text = "blue"
-alignment = 1
-expand_to_text_length = true
 
 [node name="Option3" type="HBoxContainer" parent="MainContainer/MainMenu" unique_id=1469914367]
 layout_mode = 2

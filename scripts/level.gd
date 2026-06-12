@@ -18,12 +18,12 @@ func _ready():
 	after_ready()
 	
 	if DisplayServer.get_name() == "headless":
-		print("Dedicated server starting...")
 		Network.start_host("", "")
 		spawn_loot()
 
 	multiplayer_chat.hide()
 	main_menu.show_menu()
+	health_bar.hide()
 	multiplayer_chat.set_process_input(true)
 
 	main_menu.host_pressed.connect(_on_host_pressed)
@@ -41,9 +41,6 @@ func _ready():
 	multiplayer.peer_disconnected.connect(_remove_player)
 	
 func after_ready():
-	# set the ipaddress so someone on lan can easily play
-	# 127.0.0.1 only works in the editor for the server, the client seems to have 
-	# trouble connecting
 	var ip_address :String
 	if OS.has_feature("windows"):
 		if OS.has_environment("COMPUTERNAME"):
@@ -64,28 +61,26 @@ func spawn_loot():
 		var magic_gem = load("res://scenes/items/gems/magic_gem.tscn")
 		var loot_item = magic_gem.instantiate()
 		loot_item.position = Vector3( -17.43, 0.025, 5.114 )
-		lootRoot.add_child(loot_item, true) # true triggers replication
+		lootRoot.add_child(loot_item, true)
 		
 		loot_item = magic_gem.instantiate()
 		loot_item.position = Vector3( 0, 1.276, 17.786 )
-		lootRoot.add_child(loot_item, true) # true triggers replication
+		lootRoot.add_child(loot_item, true)
 		
 		loot_item = magic_gem.instantiate()
 		loot_item.position = Vector3( 12.454, 0, 0 )
-		lootRoot.add_child(loot_item, true) # true triggers replication
+		lootRoot.add_child(loot_item, true)
 		
 		loot_item = magic_gem.instantiate()
 		loot_item.position = Vector3( 0, 0, -6.283 )
-		lootRoot.add_child(loot_item, true) # true triggers replication
+		lootRoot.add_child(loot_item, true)
 	
 		var pickaxe = load("res://scenes/items/weapons/pickaxe.tscn")
 		loot_item = pickaxe.instantiate()
 		loot_item.position = Vector3( 1.2, 7.6, 4.7 )
-		lootRoot.add_child(loot_item, true) # true triggers replication
+		lootRoot.add_child(loot_item, true)
 		
 func _on_server_disconnected():
-	print("Server disconnected, returning to menu...")
-	
 	for child in players_container.get_children():
 		child.queue_free()
 	
@@ -94,6 +89,8 @@ func _on_server_disconnected():
 	multiplayer_chat.hide()
 	if inventory_ui:
 		inventory_ui.close_inventory()
+		inventory_ui.current_player = null
+	health_bar.hide()
 	
 	main_menu.show_menu()
 
@@ -154,7 +151,6 @@ func _remove_player(id):
 func _on_quit_pressed() -> void:
 	get_tree().quit()
 
-# ---------- MULTIPLAYER CHAT ----------
 func toggle_chat():
 	if main_menu.is_menu_visible():
 		return
@@ -214,7 +210,6 @@ func _sanitize_chat_message(message_text: String) -> String:
 		clean = clean.substr(0, MAX_CHAT_MESSAGE_LENGTH)
 	return clean
 
-# ---------- INVENTORY SYSTEM ----------
 func toggle_inventory():
 	if main_menu.is_menu_visible():
 		return
@@ -232,22 +227,12 @@ func toggle_inventory():
 func is_inventory_visible() -> bool:
 	return inventory_visible
 
-# Additional helper for testing
-func _notification(what):
-	if what == NOTIFICATION_READY:
-		print("Inventory System Controls:")
-		print("  B - Toggle inventory")
-		print("  F1 - Add random test item (debug)")
-		print("  F2 - Print inventory contents (debug)")
-
 func _on_inventory_closed():
 	inventory_visible = false
 
 func update_local_inventory_display():
 	if inventory_ui:
-		# Always refresh if the UI exists, regardless of visibility
 		inventory_ui.refresh_display()
-		print("Debug: Inventory display updated from server sync")
 
 func _get_local_player() -> Character:
 	var local_player_id = multiplayer.get_unique_id()
@@ -255,13 +240,12 @@ func _get_local_player() -> Character:
 		return players_container.get_node(str(local_player_id)) as Character
 	return null
 
-# Debug functions for testing inventory system
 func _debug_add_item():
 	if not OS.is_debug_build() or not multiplayer.is_server():
 		return
 	var local_player = _get_local_player()
 	if local_player:
-		var test_items = ["iron_sword", "health_potion", "leather_armor", "magic_gem", "iron_pickaxe", "apple"]
+		var test_items = ["iron_sword", "health_potion", "viking_helmet", "magic_gem", "iron_pickaxe", "apple"]
 		var random_item = test_items[randi() % test_items.size()]
 		local_player.request_add_item.rpc_id(1, random_item, 1)
 

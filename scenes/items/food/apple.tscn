@@ -23,7 +23,7 @@ script = ExtResource("1_v00l4")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2275936, 0)
 shape = SubResource("SphereShape3D_81tcl")
 
-[node name="apple" parent="." unique_id=635492419 instance=ExtResource("1_81tcl")]
+[node name="AppleModel" parent="." unique_id=635492419 instance=ExtResource("1_81tcl")]
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0.27501905, 0)
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=311418574]

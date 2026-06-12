@@ -5,4 +5,4 @@ func _on_body_entered(body: Node3D) -> void:
 	if not local_player or not local_player.is_multiplayer_authority():
 		return
 	if body is Character and body != local_player:
-		local_player.server_apply_damage.rpc_id(1, body.get_path(), 1)
+		local_player.request_attack_hit.rpc_id(1, body.get_path(), Character.BASIC_ATTACK_ID)

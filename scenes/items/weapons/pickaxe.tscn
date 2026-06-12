@@ -19,7 +19,7 @@ collision_layer = 4
 collision_mask = 7
 script = ExtResource("1_7jhwy")
 
-[node name="pickaxe" parent="." unique_id=1621680701 instance=ExtResource("1_b233w")]
+[node name="PickaxeMesh" parent="." unique_id=1621680701 instance=ExtResource("1_b233w")]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1916280308]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0020751953, 0.5043335, -0.026892424)

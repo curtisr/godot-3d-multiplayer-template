@@ -20,7 +20,6 @@ func _load_items():
 func _create_sample_items():
 	var placeholder_icon = load("res://icon.png")
 
-	# Basic sword
 	var iron_sword = Item.new()
 	iron_sword.id = "iron_sword"
 	iron_sword.name = "Iron Sword"
@@ -37,7 +36,6 @@ func _create_sample_items():
 	iron_sword.scene_path = "res://scenes/items/weapons/sword.tscn"
 	items[iron_sword.id] = iron_sword
 
-	# Health potion
 	var health_potion = Item.new()
 	health_potion.id = "health_potion"
 	health_potion.name = "Health Potion"
@@ -55,23 +53,21 @@ func _create_sample_items():
 									 Item.ContextOptions.DROP:Item.static_drop})	
 	items[health_potion.id] = health_potion
 
-	# Leather armor
-	var leather_armor = Item.new()
-	leather_armor.id = "leather_armor"
-	leather_armor.name = "Leather Armor"
-	leather_armor.description = "Basic protection made from leather."
-	leather_armor.item_type = Item.ItemType.ARMOR
-	leather_armor.rarity = Item.ItemRarity.UNCOMMON
-	leather_armor.stackable = false
-	leather_armor.value = 75
-	leather_armor.icon = placeholder_icon
-	leather_armor.scene_path = "res://scenes/items/armors/leather_armor.tscn"
-	leather_armor.set_context_options([Item.ContextOptions.EQUIP, Item.ContextOptions.DROP])
-	leather_armor.set_context_callable({Item.ContextOptions.EQUIP:Item.equip,
+	var viking_helmet = Item.new()
+	viking_helmet.id = "viking_helmet"
+	viking_helmet.name = "Viking Helmet"
+	viking_helmet.description = "A horned helmet that protects the head."
+	viking_helmet.item_type = Item.ItemType.ARMOR
+	viking_helmet.rarity = Item.ItemRarity.UNCOMMON
+	viking_helmet.stackable = false
+	viking_helmet.value = 75
+	viking_helmet.icon = placeholder_icon
+	viking_helmet.scene_path = "res://scenes/items/armors/viking_helmet.tscn"
+	viking_helmet.set_context_options([Item.ContextOptions.EQUIP, Item.ContextOptions.DROP])
+	viking_helmet.set_context_callable({Item.ContextOptions.EQUIP:Item.equip,
 									 	Item.ContextOptions.DROP:Item.static_drop})	
-	items[leather_armor.id] = leather_armor
+	items[viking_helmet.id] = viking_helmet
 
-	# Magic gem
 	var magic_gem = Item.new()
 	magic_gem.id = "magic_gem"
 	magic_gem.name = "Magic Gem"
@@ -88,7 +84,6 @@ func _create_sample_items():
 									 	Item.ContextOptions.DROP:Item.static_drop})	
 	items[magic_gem.id] = magic_gem
 
-	# Pickaxe tool
 	var pickaxe = Item.new()
 	pickaxe.id = "iron_pickaxe"
 	pickaxe.name = "Iron Pickaxe"
@@ -105,7 +100,6 @@ func _create_sample_items():
 								Item.ContextOptions.DROP:Item.static_drop})	
 	items[pickaxe.id] = pickaxe
 
-	# Apple food
 	var apple = Item.new()
 	apple.id = "apple"
 	apple.name = "Apple"

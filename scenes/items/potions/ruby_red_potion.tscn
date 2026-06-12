@@ -24,7 +24,7 @@ script = ExtResource("1_f8obb")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25571442, 0)
 shape = SubResource("CapsuleShape3D_ah86n")
 
-[node name="red+potion+bottle+3d+model" parent="." unique_id=179960160 instance=ExtResource("2_f8obb")]
+[node name="RubyRedPotionModel" parent="." unique_id=179960160 instance=ExtResource("2_f8obb")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1885090080]

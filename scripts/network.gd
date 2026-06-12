@@ -32,7 +32,6 @@ func start_host(nickname: String, skin_color_str: String):
 	if error:
 		return 	error
 
-	# https://www.youtube.com/watch?v=e0JLO_5UgQo&t=4077s
 	peer.host.compress(ENetConnection.COMPRESS_RANGE_CODER)
 	multiplayer.multiplayer_peer = peer
 
@@ -109,7 +108,6 @@ func skin_str_to_e(s):
 		"red": return Character.SkinColor.RED
 		_: return Character.SkinColor.BLUE
 
-# get the client player 
 func getPlayer() -> Character:
 	var result = null
 	var rPlayers = get_tree().get_nodes_in_group("Players")
@@ -118,10 +116,6 @@ func getPlayer() -> Character:
 		for tmp in node_array:
 			if tmp.is_multiplayer_authority():
 				result = tmp
-	else:
-		print("error unable to find player")
-			
-			
 	return result
 
 @rpc("authority", "reliable")

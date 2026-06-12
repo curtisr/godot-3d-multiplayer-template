@@ -43,10 +43,12 @@ Ensure the script has execution permissions (`chmod +x run_headless_server.sh`) 
 
 * `<kbd>`W`</kbd>` `<kbd>`A`</kbd>` `<kbd>`S`</kbd>` `<kbd>`D`</kbd>` to move.
 * `<kbd>`Shift`</kbd>` to run.
-* `<kbd>`Space`</kbd>` to jump.
+* `<kbd>`Space`</kbd>` to jump or double jump.
+* Left mouse button to attack.
+* `<kbd>`E`</kbd>` to collect a nearby item.
 * `<kbd>`Esc`</kbd>` to quit.
-* `<kbd>`Ctrl`</kbd>` to hide/show chat.
-* `<kbd>`B`</kbd>` to toggle inventory.
+* `<kbd>`T`</kbd>` to hide/show chat.
+* `<kbd>`I`</kbd>` to toggle inventory.
 * `<kbd>`F1`</kbd>` to add random test item (debug).
 * `<kbd>`F2`</kbd>` to print inventory contents (debug).
 

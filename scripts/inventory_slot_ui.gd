@@ -132,7 +132,7 @@ func _get_drag_data(_position: Vector2):
 		"slot_index": slot_index,
 		"item_id": inventory_data.item_id,
 		"quantity": inventory_data.quantity,
-		"inventory_type": ItemDatabase.get_item(inventory_data.item_id).item_type  # Can be extended for different inventory types
+		"inventory_type": item.item_type
 	}
 
 func _notification(what):
