@@ -4758,27 +4758,24 @@ _data = {
 properties/0/path = NodePath(".:position")
 properties/0/spawn = true
 properties/0/replication_mode = 1
-properties/1/path = NodePath("GodotRobot3D/AnimationPlayer:current_animation")
+properties/1/path = NodePath("PlayerNick/Nickname:text")
 properties/1/spawn = true
 properties/1/replication_mode = 1
-properties/2/path = NodePath("PlayerNick/Nickname:text")
+properties/2/path = NodePath("GodotRobot3D:rotation")
 properties/2/spawn = true
 properties/2/replication_mode = 1
-properties/3/path = NodePath("GodotRobot3D:rotation")
+properties/3/path = NodePath(".:player_health")
 properties/3/spawn = true
-properties/3/replication_mode = 1
-properties/4/path = NodePath(".:player_health")
+properties/3/replication_mode = 2
+properties/4/path = NodePath("GodotRobot3D/RobotArmature/Skeleton3D/LeftHandAttach/IronSword:visible")
 properties/4/spawn = true
 properties/4/replication_mode = 2
-properties/5/path = NodePath("GodotRobot3D/RobotArmature/Skeleton3D/LeftHandAttach/IronSword:visible")
+properties/5/path = NodePath("GodotRobot3D/RobotArmature/Skeleton3D/LeftHandAttach/IronPickaxe:visible")
 properties/5/spawn = true
 properties/5/replication_mode = 2
-properties/6/path = NodePath("GodotRobot3D/RobotArmature/Skeleton3D/LeftHandAttach/IronPickaxe:visible")
+properties/6/path = NodePath("GodotRobot3D/RobotArmature/Skeleton3D/HeadAttach/VikingHelmet:visible")
 properties/6/spawn = true
 properties/6/replication_mode = 2
-properties/7/path = NodePath("GodotRobot3D/RobotArmature/Skeleton3D/HeadAttach/VikingHelmet:visible")
-properties/7/spawn = true
-properties/7/replication_mode = 2
 
 [node name="Player" type="CharacterBody3D" unique_id=1972894128 node_paths=PackedStringArray("_body", "_spring_arm_offset")]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
@@ -5019,7 +5016,7 @@ transform = Transform3D(0.24999994, -5.0931703e-09, -9.313226e-10, 4.773028e-09,
 visible = false
 
 [node name="IronSword" type="Node3D" parent="GodotRobot3D/RobotArmature/Skeleton3D/LeftHandAttach" unique_id=620293282]
-transform = Transform3D(0.06689437, -0.04240727, -0.99685866, 0.025078528, 0.99885225, -0.040809184, 0.9974449, -0.022269836, 0.06788109, -0.0042942762, 0.4619406, -0.01563172)
+transform = Transform3D(0.04348134, -0.027564725, -0.6479581, 0.016301043, 0.64925396, -0.026525969, 0.64833915, -0.014475393, 0.044122707, -0.0042942762, 0.4619406, -0.01563172)
 visible = false
 
 [node name="Mesh0" type="MeshInstance3D" parent="GodotRobot3D/RobotArmature/Skeleton3D/LeftHandAttach/IronSword" unique_id=1969444425]
@@ -5035,7 +5032,7 @@ transform = Transform3D(1, -2.2910535e-07, -3.8556755e-07, -6.519258e-09, 1, -2.
 shape = SubResource("CapsuleShape3D_lm846")
 
 [node name="IronPickaxe" type="Node3D" parent="GodotRobot3D/RobotArmature/Skeleton3D/LeftHandAttach" unique_id=1621680701]
-transform = Transform3D(1, 0, 0, 9.313226e-10, 1.0000001, 0, -3.7252903e-09, -3.7252903e-09, 1.0000001, -0.0033142567, 0.3565169, -0.012064263)
+transform = Transform3D(0.65, 0, 0, 6.053597e-10, 0.65000004, 0, -2.4214386e-09, -2.4214386e-09, 0.65000004, -0.0033142567, 0.3565169, -0.012064263)
 visible = false
 
 [node name="PickaxeMesh" type="MeshInstance3D" parent="GodotRobot3D/RobotArmature/Skeleton3D/LeftHandAttach/IronPickaxe" unique_id=338310717]

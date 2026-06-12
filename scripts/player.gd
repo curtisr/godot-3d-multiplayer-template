@@ -10,10 +10,25 @@ const RESPAWN_DELAY_SECONDS: float = 8.0
 const ATTACK_WINDOW_SECONDS := 1.25
 const MAX_ATTACK_DISTANCE := 3.5
 const BASIC_ATTACK_ID := "unarmed"
+const ALLOWED_ANIMATION_STATES := {
+	&"Idle": true,
+	&"Run": true,
+	&"Sprint": true,
+	&"Jump": true,
+	&"Jump2": true,
+	&"Fall": true,
+	&"Attack1": true,
+	&"Emote2": true
+}
+const SERVER_ANIMATION_STATES := {
+	&"Hurt": true,
+	&"Death": true,
+	&"Respawn": true
+}
 const ATTACK_DAMAGE := {
 	BASIC_ATTACK_ID: 1,
-	"iron_sword": 2,
-	"iron_pickaxe": 3
+	"iron_sword": 3,
+	"iron_pickaxe": 2
 }
 
 enum SkinColor { BLUE, YELLOW, GREEN, RED }
@@ -45,6 +60,7 @@ var player_inventory: PlayerInventory
 var _current_speed: float
 var _respawn_point = Vector3(0, 5, 0)
 var is_dead: bool = false
+var is_hurt: bool = false
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 var can_double_jump = true
@@ -55,6 +71,11 @@ var _server_attack_started_at := 0
 var _server_attack_id := 0
 var _server_attack_active := false
 var _server_hit_targets: Dictionary = {}
+var _animation_sequence := 0
+var _last_applied_animation_sequence := 0
+var _last_requested_animation: StringName = &""
+var _death_animation_finished := false
+var _respawn_timer_active := false
 
 func _enter_tree():
 	set_multiplayer_authority(str(name).to_int())
@@ -81,17 +102,21 @@ func _ready():
 	if animation_player:
 		animation_player.animation_finished.connect(_on_animation_finished)
 	weapon_disabled()
+	_body.play_animation_state(&"Idle")
 
 func _physics_process(delta):
-	if player_health <= 0:
-		if not is_dead:
-			is_dead = true
-			_body.play_death()
-			if multiplayer.is_server():
-				_start_respawn_timer()
+	if is_dead:
+		velocity = Vector3.ZERO
 		return
 	if not multiplayer.has_multiplayer_peer(): return
 	if not is_multiplayer_authority(): return
+
+	if is_hurt:
+		velocity.x = 0
+		velocity.z = 0
+		_apply_gravity(delta)
+		move_and_slide()
+		return
 
 	var current_scene = get_tree().get_current_scene()
 	var should_freeze = false
@@ -120,7 +145,7 @@ func _physics_process(delta):
 
 	if Input.is_action_just_pressed("pickup") and is_on_floor():
 		is_collecting = true
-		_body.play_pickup()
+		_request_animation(&"Emote2", true)
 		return
 
 	if Input.is_action_just_pressed("attack") and is_on_floor():
@@ -134,7 +159,7 @@ func _physics_process(delta):
 		if Input.is_action_just_pressed("jump"):
 			velocity.y = JUMP_VELOCITY
 			can_double_jump = true
-			_body.play_jump_animation("Jump")
+			_request_animation(&"Jump", true)
 	else:
 		_apply_gravity(delta)
 
@@ -142,14 +167,14 @@ func _physics_process(delta):
 			velocity.y = JUMP_VELOCITY
 			has_double_jumped = true
 			can_double_jump = false
-			_body.play_jump_animation("Jump2")
+			_request_animation(&"Jump2", true)
 
 	_move()
 	var collided = move_and_slide()
 	if collided:
 		collision()
 
-	_body.animate(velocity)
+	_request_animation(_body.get_movement_animation(velocity))
 
 func _apply_gravity(delta: float) -> void:
 	if is_on_floor():
@@ -163,7 +188,7 @@ func _start_attack() -> void:
 	is_attacking = true
 	velocity.x = 0
 	velocity.z = 0
-	_body.play_attack_animation()
+	_request_animation(&"Attack1", true)
 	if multiplayer.is_server():
 		request_start_attack()
 	else:
@@ -176,6 +201,70 @@ func _on_animation_finished(animation_name: StringName) -> void:
 			weapon_disabled()
 		&"Emote2":
 			is_collecting = false
+		&"Hurt":
+			if is_dead:
+				_death_animation_finished = true
+				_body.pause_death_pose()
+			else:
+				is_hurt = false
+
+func _request_animation(state: StringName, restart: bool = false) -> void:
+	if not ALLOWED_ANIMATION_STATES.has(state) or is_dead:
+		return
+	if not restart and _last_requested_animation == state:
+		return
+	_last_requested_animation = state
+	_body.play_animation_state(state, restart)
+	if multiplayer.is_server():
+		request_animation_state(state)
+	else:
+		request_animation_state.rpc_id(1, state)
+
+@rpc("any_peer", "call_local", "reliable")
+func request_animation_state(state: StringName) -> void:
+	if not multiplayer.is_server() or not _is_owner_request():
+		return
+	if not ALLOWED_ANIMATION_STATES.has(state) or is_dead:
+		return
+	_server_publish_animation(state)
+
+func _server_publish_animation(state: StringName) -> void:
+	if not multiplayer.is_server():
+		return
+	_animation_sequence += 1
+	sync_animation_state.rpc(state, _animation_sequence)
+	sync_animation_state(state, _animation_sequence)
+
+@rpc("any_peer", "call_local", "reliable")
+func sync_animation_state(state: StringName, sequence: int) -> void:
+	var sender_id := multiplayer.get_remote_sender_id()
+	if sender_id != 1 and not (sender_id == 0 and multiplayer.is_server()):
+		return
+	if sequence <= _last_applied_animation_sequence:
+		return
+	_last_applied_animation_sequence = sequence
+
+	if state == &"Death":
+		is_dead = true
+		is_attacking = false
+		is_collecting = false
+		is_hurt = false
+		velocity = Vector3.ZERO
+		_death_animation_finished = false
+		weapon_disabled()
+	elif state == &"Respawn":
+		_last_requested_animation = &"Idle"
+	elif state == &"Hurt":
+		is_hurt = true
+		if is_multiplayer_authority():
+			_last_requested_animation = &""
+	elif not ALLOWED_ANIMATION_STATES.has(state) and not SERVER_ANIMATION_STATES.has(state):
+		return
+
+	# The owner already played input-driven states immediately.
+	if is_multiplayer_authority() and ALLOWED_ANIMATION_STATES.has(state):
+		return
+	_body.play_animation_state(state, true)
 
 
 func collision():
@@ -193,7 +282,7 @@ func freeze():
 	velocity.x = 0
 	velocity.z = 0
 	_current_speed = 0
-	_body.animate(Vector3.ZERO)
+	_request_animation(&"Idle")
 
 func _move() -> void:
 	var _input_direction: Vector2 = Vector2.ZERO
@@ -234,17 +323,22 @@ func _respawn():
 	velocity = Vector3.ZERO
 
 func _start_respawn_timer() -> void:
+	if _respawn_timer_active:
+		return
+	_respawn_timer_active = true
 	var timer = get_tree().create_timer(RESPAWN_DELAY_SECONDS)
 	timer.timeout.connect(_server_respawn)
 
 func _server_respawn() -> void:
 	if not multiplayer.is_server():
 		return
+	_respawn_timer_active = false
 	player_health = MAX_HEALTH
 	sync_health.rpc(player_health)
 	sync_health(player_health)
 	respawn_player.rpc()
 	respawn_player()
+	_server_publish_animation(&"Respawn")
 
 @rpc("any_peer", "call_local", "reliable")
 func respawn_player() -> void:
@@ -254,6 +348,12 @@ func respawn_player() -> void:
 	global_transform.origin = _respawn_point
 	velocity = Vector3.ZERO
 	is_dead = false
+	is_hurt = false
+	is_attacking = false
+	is_collecting = false
+	_server_attack_active = false
+	_death_animation_finished = false
+	weapon_disabled()
 
 @rpc("any_peer", "reliable")
 func change_nick(new_nick: String):
@@ -534,7 +634,7 @@ func pickup():
 func request_pickup() -> void:
 	if not multiplayer.is_server() or not _is_owner_request():
 		return
-	if is_dead or not _is_grounded_on_server():
+	if is_dead or is_hurt or not _is_grounded_on_server():
 		return
 	_server_pickup()
 
@@ -567,7 +667,7 @@ func applyForceToServerObject(nameOfObject: String, normal: Vector3):
 func request_start_attack() -> void:
 	if not multiplayer.is_server() or not _is_owner_request():
 		return
-	if is_dead or not _is_grounded_on_server():
+	if is_dead or is_hurt or not _is_grounded_on_server():
 		return
 	if _server_attack_active:
 		if Time.get_ticks_msec() - _server_attack_started_at <= int(ATTACK_WINDOW_SECONDS * 1000.0):
@@ -606,6 +706,23 @@ func request_attack_hit(target_path: NodePath, attack_source: String) -> void:
 	target.player_health = clampi(target.player_health - int(ATTACK_DAMAGE[expected_source]), 0, MAX_HEALTH)
 	target.sync_health.rpc(target.player_health)
 	target.sync_health(target.player_health)
+	if target.player_health <= 0:
+		target._server_enter_death()
+	else:
+		target._server_publish_animation(&"Hurt")
+
+func _server_enter_death() -> void:
+	if not multiplayer.is_server() or is_dead:
+		return
+	is_dead = true
+	is_hurt = false
+	is_attacking = false
+	is_collecting = false
+	velocity = Vector3.ZERO
+	_server_attack_active = false
+	weapon_disabled()
+	_server_publish_animation(&"Death")
+	_start_respawn_timer()
 
 func _is_server_attack_active() -> bool:
 	if not _server_attack_active:
@@ -636,14 +753,11 @@ func sync_health(new_health: int):
 	var sender_id = multiplayer.get_remote_sender_id()
 	if sender_id != 1 and not (sender_id == 0 and multiplayer.is_server()):
 		return
-	var old_health = player_health
 	player_health = clampi(new_health, 0, MAX_HEALTH)
 	if is_multiplayer_authority():
 		var level_scene = get_tree().get_current_scene()
 		if level_scene and level_scene.has_node("HealthBar"):
 			level_scene.get_node("HealthBar").set_bar(player_health)
-	if player_health < old_health and player_health > 0:
-		_body.play_hurt()
 
 func weapon_disabled():
 	var hurt_area = get_node_or_null("GodotRobot3D/RobotArmature/Skeleton3D/LeftHandAttach/HurtArea")
